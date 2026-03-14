@@ -4,7 +4,7 @@ KUBO is a 2D sandbox building game made with HTML5 and JavaScript.
 Build worlds, place blocks, spawn animals, trigger disasters, and experiment freely in an interactive pixel environment.
 
 ## Play the game
-
+https://ikx337.github.io/kubo/
 
 ## Features
 - Block building system
