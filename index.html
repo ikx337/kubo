@@ -6,7 +6,7 @@
   <title>KUBO</title>
   <meta name="google-site-verification" content="DkHXddfo6Wly7i6LO3n-LdQNDRhlhdqMlu8i83ZDsr8" />
   <link rel="icon" type="image/png" href="favicon.png">
-  
+
   <style>
     * { box-sizing: border-box; }
     html, body {
@@ -18,6 +18,10 @@
       background: #10131a;
       color: #fff;
       user-select: none;
+    }
+
+    input, button {
+      font-family: inherit;
     }
 
     #app {
@@ -58,6 +62,7 @@
       backdrop-filter: blur(6px);
       box-shadow: 0 8px 20px rgba(0,0,0,0.18);
       pointer-events: none;
+      z-index: 5;
     }
 
     #heartIcon {
@@ -102,6 +107,34 @@
       min-height: 14px;
     }
 
+    #addPlayerBtn {
+      position: absolute;
+      top: 12px;
+      left: 316px;
+      height: 54px;
+      padding: 0 16px;
+      border: 1px solid rgba(255,255,255,0.16);
+      border-radius: 14px;
+      background: rgba(0,0,0,0.42);
+      color: #fff;
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+      backdrop-filter: blur(6px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.18);
+      z-index: 6;
+      transition: 0.16s ease;
+    }
+
+    #addPlayerBtn:hover {
+      background: rgba(34,46,72,0.88);
+      transform: translateY(-1px);
+    }
+
+    #addPlayerBtn.hiddenUI {
+      display: none !important;
+    }
+
     #hud {
       position: absolute;
       left: 14px;
@@ -115,6 +148,7 @@
       backdrop-filter: blur(6px);
       pointer-events: none;
       min-width: 300px;
+      z-index: 4;
     }
 
     #sidebar {
@@ -344,7 +378,7 @@
       position: relative;
     }
 
-    #closeCredits {
+    #closeCredits, .closeMiniOverlay {
       position: absolute;
       right: 14px;
       top: 14px;
@@ -359,7 +393,7 @@
       font-weight: bold;
     }
 
-    #closeCredits:hover { background: #364363; }
+    #closeCredits:hover, .closeMiniOverlay:hover { background: #364363; }
 
     #creditsText {
       margin: 16px 0 0;
@@ -370,16 +404,317 @@
       text-align: center;
     }
 
+    .overlayScreen {
+      position: fixed;
+      inset: 0;
+      z-index: 55;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background:
+        radial-gradient(circle at 50% 20%, rgba(255,255,255,0.10), rgba(255,255,255,0) 30%),
+        linear-gradient(180deg, rgba(7,12,25,0.28), rgba(7,12,25,0.82));
+      backdrop-filter: blur(3px);
+    }
+
+    .overlayScreen.show {
+      display: flex;
+    }
+
+    .overlayPanel {
+      width: min(94vw, 860px);
+      padding: 30px 26px 24px;
+      border-radius: 28px;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(15, 20, 34, 0.74);
+      box-shadow: 0 25px 80px rgba(0,0,0,0.35);
+      text-align: center;
+      position: relative;
+    }
+
+    .overlayTitle {
+      margin: 0;
+      font-size: clamp(34px, 5vw, 56px);
+      font-weight: 900;
+      letter-spacing: 1px;
+      color: #fff4cf;
+      text-shadow: 0 8px 26px rgba(0,0,0,0.28);
+    }
+
+    .overlaySub {
+      margin: 10px 0 0;
+      color: #d9e3f7;
+      font-size: 15px;
+    }
+
+    .modeGrid {
+      margin-top: 24px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .modeCard {
+      border: 2px solid rgba(255,255,255,0.12);
+      border-radius: 22px;
+      padding: 20px 16px;
+      background: linear-gradient(180deg, #263149 0%, #1b2436 100%);
+      color: #fff;
+      cursor: pointer;
+      transition: 0.16s ease;
+      min-height: 180px;
+    }
+
+    .modeCard:hover {
+      transform: translateY(-3px) scale(1.01);
+      border-color: rgba(255,255,255,0.24);
+      background: linear-gradient(180deg, #31405f 0%, #222d43 100%);
+    }
+
+    .modeCard.primary {
+      background: linear-gradient(180deg, #ffca61 0%, #ff944d 58%, #ff5f62 100%);
+      color: #1e1820;
+      box-shadow: 0 10px 24px rgba(255,106,69,0.22);
+    }
+
+    .modeCard.primary:hover {
+      background: linear-gradient(180deg, #ffd87f 0%, #ffa762 58%, #ff7377 100%);
+    }
+
+    .modeEmoji {
+      font-size: 48px;
+      margin-bottom: 14px;
+      display: block;
+    }
+
+    .modeName {
+      font-size: 28px;
+      font-weight: 900;
+      margin-bottom: 8px;
+    }
+
+    .modeDesc {
+      font-size: 14px;
+      line-height: 1.5;
+      opacity: 0.92;
+    }
+
+    .backMiniBtn {
+      margin-top: 18px;
+      padding: 12px 18px;
+      border-radius: 14px;
+      border: 2px solid rgba(255,255,255,0.12);
+      background: #263149;
+      color: #fff;
+      font-weight: 800;
+      font-size: 15px;
+      cursor: pointer;
+      transition: 0.15s ease;
+    }
+
+    .backMiniBtn:hover {
+      background: #33405f;
+    }
+
+    #footballHud {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      min-width: 280px;
+      max-width: 360px;
+      background: rgba(0,0,0,0.42);
+      border: 1px solid rgba(255,255,255,0.16);
+      border-radius: 14px;
+      padding: 12px 14px;
+      backdrop-filter: blur(6px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.18);
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    #footballScore {
+      font-size: 26px;
+      font-weight: 900;
+      color: #fff;
+      margin-bottom: 6px;
+    }
+
+    #footballHint {
+      font-size: 13px;
+      color: #d9e3f7;
+      line-height: 1.45;
+      min-height: 34px;
+    }
+
+    #footballBanner {
+      margin-top: 8px;
+      min-height: 18px;
+      color: #ffe18d;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .nameOverlayScreen {
+      position: fixed;
+      inset: 0;
+      z-index: 70;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(6, 9, 16, 0.72);
+      backdrop-filter: blur(4px);
+    }
+
+    .nameOverlayScreen.show {
+      display: flex;
+    }
+
+    .namePanel {
+      width: min(92vw, 460px);
+      padding: 28px 24px 24px;
+      border-radius: 24px;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(15, 20, 34, 0.88);
+      box-shadow: 0 25px 80px rgba(0,0,0,0.35);
+      text-align: center;
+      position: relative;
+    }
+
+    .nameLabel {
+      font-size: 15px;
+      color: #d9e3f7;
+      margin: 14px 0 10px;
+      text-align: left;
+    }
+
+    .nameInput {
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.18);
+      background: #1d2433;
+      color: #fff;
+      font-size: 16px;
+      outline: none;
+    }
+
+    .nameInput:focus {
+      border-color: #61e6ff;
+      box-shadow: 0 0 0 2px rgba(97,230,255,0.16);
+    }
+
+    .submitNameBtn {
+      width: 100%;
+      margin-top: 14px;
+      padding: 14px 16px;
+      border-radius: 14px;
+      border: none;
+      font-size: 18px;
+      font-weight: 900;
+      cursor: pointer;
+      background: linear-gradient(180deg, #ffca61 0%, #ff944d 58%, #ff5f62 100%);
+      color: #1c1620;
+      transition: 0.16s ease;
+    }
+
+    .submitNameBtn:hover:not(:disabled) {
+      transform: translateY(-1px);
+      filter: brightness(1.05);
+    }
+
+    .submitNameBtn:disabled {
+      cursor: not-allowed;
+      background: #596173;
+      color: #cad0d8;
+      opacity: 0.82;
+    }
+
+    @media (max-width: 840px) {
+      #addPlayerBtn {
+        top: 72px;
+        left: 14px;
+      }
+
+      #hud {
+        top: 154px;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .modeGrid {
+        grid-template-columns: 1fr;
+      }
+    }
+
     .hiddenUI { display: none !important; }
   </style>
 </head>
 <body>
+  <audio id="lobbyMusic" src="lobby-music.mp3" loop preload="auto"></audio>
+  <audio id="gameMusic" src="game-music.mp3" loop preload="auto"></audio>
+
   <div id="startScreen">
     <div id="startPanel">
       <h1 id="titleKubo">KUBO</h1>
       <p id="startTagline">Construye, experimenta y convierte el caos en tu mundo.</p>
       <button id="playBtn" class="menuBtn play">Jugar</button>
       <button id="creditsBtn" class="menuBtn">Créditos</button>
+    </div>
+  </div>
+
+  <div id="modeScreen" class="overlayScreen">
+    <div class="overlayPanel">
+      <h2 class="overlayTitle">Selecciona un modo</h2>
+      <p class="overlaySub">Por el momento hay solo 2 modos. Luego añadiré multijugador ONLINE si tiene apoyo :D</p>
+      <div class="modeGrid">
+        <button id="sandboxModeBtn" class="modeCard primary">
+          <span class="modeEmoji">🧱</span>
+          <div class="modeName">Sandbox</div>
+          <div class="modeDesc">Tu modo normal de construcción con bloques, animales, entidades, desastres y explosivos.</div>
+        </button>
+        <button id="minigamesModeBtn" class="modeCard">
+          <span class="modeEmoji">🎮</span>
+          <div class="modeName">Minijuegos</div>
+          <div class="modeDesc">Un selector aparte para minijuegos. Por ahora solo incluye Fútbol contra bots.</div>
+        </button>
+      </div>
+      <button id="backToStartBtn" class="backMiniBtn">Volver</button>
+    </div>
+  </div>
+
+  <div id="minigamesScreen" class="overlayScreen">
+    <div class="overlayPanel">
+      <h2 class="overlayTitle">Minijuegos</h2>
+      <p class="overlaySub">Marca 3 goles antes que los bots y vuelves automáticamente al selector.</p>
+      <div class="modeGrid" style="grid-template-columns: 1fr;">
+        <button id="footballBtn" class="modeCard primary" style="min-height: 190px;">
+          <span class="modeEmoji">⚽</span>
+          <div class="modeName">Fútbol</div>
+          <div class="modeDesc">Partido rápido contra bots. Tú atacas la portería derecha. Primer equipo en llegar a 3 goles gana.</div>
+        </button>
+      </div>
+      <button id="backToModesBtn" class="backMiniBtn">Volver a modos</button>
+    </div>
+  </div>
+
+  <div id="sandboxNameScreen" class="nameOverlayScreen">
+    <div class="namePanel">
+      <h2 class="overlayTitle" style="font-size:32px;">Nombre de usuario</h2>
+      <p class="overlaySub">Pon tu nombre antes de entrar al Sandbox.</p>
+      <div class="nameLabel">Nombre de usuario:</div>
+      <input id="sandboxNameInput" class="nameInput" type="text" maxlength="18" placeholder="Escribe tu nombre" />
+      <button id="sandboxNameConfirmBtn" class="submitNameBtn" disabled>Poner</button>
+    </div>
+  </div>
+
+  <div id="secondPlayerNameScreen" class="nameOverlayScreen">
+    <div class="namePanel">
+      <button id="closeSecondPlayerNameBtn" class="closeMiniOverlay">X</button>
+      <h2 class="overlayTitle" style="font-size:32px;">Añadir jugador</h2>
+      <p class="overlaySub">Jugador 2 usará flechas.</p>
+      <div class="nameLabel">Nombre de usuario:</div>
+      <input id="secondPlayerNameInput" class="nameInput" type="text" maxlength="18" placeholder="Escribe el nombre del jugador 2" />
+      <button id="secondPlayerNameConfirmBtn" class="submitNameBtn" disabled>Poner</button>
     </div>
   </div>
 
@@ -410,7 +745,15 @@ Gracias por jugar.
         </div>
       </div>
 
+      <button id="addPlayerBtn" class="hiddenUI">Añadir jugador (M)</button>
+
       <div id="hud"></div>
+
+      <div id="footballHud" class="hiddenUI">
+        <div id="footballScore">⚽ 0 - 0</div>
+        <div id="footballHint">Marca 3 goles para ganar.</div>
+        <div id="footballBanner"></div>
+      </div>
     </div>
 
     <aside id="sidebar">
@@ -428,16 +771,17 @@ Gracias por jugar.
 
       <div id="footerNote">
         Controles:<br>
-        A / D o flechas: moverte<br>
+        Jugador 1: A / D y W para saltar<br>
+        Jugador 2: flechas (si está activo)<br>
         Shift en tierra: correr<br>
-        Espacio / W / ↑: saltar<br>
         Shift dentro del agua: subir nadando<br>
         Click izquierdo: colocar / usar sección<br>
         Click derecho: borrar<br>
         Mantener clic y arrastrar: construir o borrar<br>
         F: usar mechero si lo tienes<br>
         E: encender TNT cercana<br>
-        R: reiniciar jugador
+        M: añadir jugador 2<br>
+        R: reiniciar jugador 1
       </div>
     </aside>
   </div>
@@ -451,6 +795,9 @@ Gracias por jugar.
     const placeModeBtn = document.getElementById('placeModeBtn');
     const eraseModeBtn = document.getElementById('eraseModeBtn');
     const gameWrap = document.getElementById('gameWrap');
+    const healthPanel = document.getElementById('healthPanel');
+    const addPlayerBtn = document.getElementById('addPlayerBtn');
+    const sidebar = document.getElementById('sidebar');
     const healthText = document.getElementById('healthText');
     const healthBarInner = document.getElementById('healthBarInner');
     const healthBurn = document.getElementById('healthBurn');
@@ -459,6 +806,30 @@ Gracias por jugar.
     const creditsBtn = document.getElementById('creditsBtn');
     const creditsOverlay = document.getElementById('creditsOverlay');
     const closeCredits = document.getElementById('closeCredits');
+
+    const modeScreen = document.getElementById('modeScreen');
+    const minigamesScreen = document.getElementById('minigamesScreen');
+    const sandboxModeBtn = document.getElementById('sandboxModeBtn');
+    const minigamesModeBtn = document.getElementById('minigamesModeBtn');
+    const backToStartBtn = document.getElementById('backToStartBtn');
+    const footballBtn = document.getElementById('footballBtn');
+    const backToModesBtn = document.getElementById('backToModesBtn');
+
+    const sandboxNameScreen = document.getElementById('sandboxNameScreen');
+    const sandboxNameInput = document.getElementById('sandboxNameInput');
+    const sandboxNameConfirmBtn = document.getElementById('sandboxNameConfirmBtn');
+    const secondPlayerNameScreen = document.getElementById('secondPlayerNameScreen');
+    const secondPlayerNameInput = document.getElementById('secondPlayerNameInput');
+    const secondPlayerNameConfirmBtn = document.getElementById('secondPlayerNameConfirmBtn');
+    const closeSecondPlayerNameBtn = document.getElementById('closeSecondPlayerNameBtn');
+
+    const footballHud = document.getElementById('footballHud');
+    const footballScore = document.getElementById('footballScore');
+    const footballHint = document.getElementById('footballHint');
+    const footballBanner = document.getElementById('footballBanner');
+
+    const lobbyMusic = document.getElementById('lobbyMusic');
+    const gameMusic = document.getElementById('gameMusic');
 
     function resizeCanvas() {
       canvas.width = gameWrap.clientWidth;
@@ -537,6 +908,7 @@ Gracias por jugar.
     const FLUID_UPDATE_INTERVAL = 14;
 
     let gameStarted = false;
+    let currentMode = null;
     let cameraShakeX = 0;
     let cameraShakeY = 0;
 
@@ -606,6 +978,21 @@ Gracias por jugar.
       { id: 'explosives', label: 'Explosivos' },
     ];
 
+    const football = {
+      active: false,
+      playerScore: 0,
+      enemyScore: 0,
+      floorY: 0,
+      banner: '',
+      bannerTimer: 0,
+      exitTimer: 0,
+      jumpLatch: false,
+      player: null,
+      ally: null,
+      enemies: [],
+      ball: null,
+    };
+
     const materialById = Object.fromEntries(materials.map(m => [m.id, m]));
     const world = Array.from({ length: WORLD_ROWS }, () => Array(WORLD_COLS).fill(null));
 
@@ -622,33 +1009,41 @@ Gracias por jugar.
       }
     };
 
-    const player = {
-      x: 5 * TILE,
-      y: 8 * TILE,
-      w: 22,
-      h: 30,
-      vx: 0,
-      vy: 0,
-      onGround: false,
-      color: '#ff556e',
-      health: MAX_HEALTH,
-      isBurning: false,
-      burnTimer: 0,
-      hurtFlash: 0,
-      inWater: false,
-      inLava: false,
-      jumpPressed: false,
-      bubbles: MAX_BUBBLES,
-      bubbleFrame: 0,
-      drownFrame: 0,
-      headUnderWater: false,
-      inventory: {
-        hasLighter: false,
-        armorTimer: 0,
-        bootsTimer: 0,
-        oxygenTimer: 0,
-      }
-    };
+    function createSandboxPlayer(options = {}) {
+      return {
+        x: options.x ?? 5 * TILE,
+        y: options.y ?? 8 * TILE,
+        w: 22,
+        h: 30,
+        vx: 0,
+        vy: 0,
+        onGround: false,
+        color: options.color ?? '#ff556e',
+        shirtColor: options.shirtColor ?? '#2a2a34',
+        health: MAX_HEALTH,
+        isBurning: false,
+        burnTimer: 0,
+        hurtFlash: 0,
+        inWater: false,
+        inLava: false,
+        jumpPressed: false,
+        bubbles: MAX_BUBBLES,
+        bubbleFrame: 0,
+        drownFrame: 0,
+        headUnderWater: false,
+        name: options.name ?? '',
+        isPrimary: !!options.isPrimary,
+        inventory: {
+          hasLighter: !!options.hasLighter,
+          armorTimer: 0,
+          bootsTimer: 0,
+          oxygenTimer: 0,
+        }
+      };
+    }
+
+    const player = createSandboxPlayer({ isPrimary: true, color: '#ff556e', shirtColor: '#2a2a34' });
+    let secondPlayer = null;
 
     const keys = {};
     let frameCount = 0;
@@ -668,28 +1063,478 @@ Gracias por jugar.
     const rains = [];
     const quakes = [];
 
-    function getMaxBubbles() {
-      return MAX_BUBBLES + (player.inventory.oxygenTimer > 0 ? 3 : 0);
+    function safePlay(audio) {
+      if (!audio) return;
+      audio.play().catch(() => {});
+    }
+
+    function playLobbyMusic() {
+      gameMusic.pause();
+      gameMusic.currentTime = 0;
+      lobbyMusic.volume = 0.5;
+      safePlay(lobbyMusic);
+    }
+
+    function playGameMusic() {
+      lobbyMusic.pause();
+      lobbyMusic.currentTime = 0;
+      gameMusic.volume = 0.5;
+      safePlay(gameMusic);
+    }
+
+    function normalizeName(value) {
+      return value.trim().replace(/\s+/g, ' ').slice(0, 18);
+    }
+
+    function clamp(value, min, max) {
+      return Math.max(min, Math.min(max, value));
+    }
+
+    function getMaxBubbles(p) {
+      return MAX_BUBBLES + (p.inventory.oxygenTimer > 0 ? 3 : 0);
+    }
+
+    function resetSandboxPlayer(p, fullHealth = false, x = 5 * TILE, y = 8 * TILE) {
+      p.x = x;
+      p.y = y;
+      p.vx = 0;
+      p.vy = 0;
+      p.onGround = false;
+      p.isBurning = false;
+      p.burnTimer = 0;
+      p.hurtFlash = 0;
+      p.inWater = false;
+      p.inLava = false;
+      p.jumpPressed = false;
+      p.bubbles = getMaxBubbles(p);
+      p.bubbleFrame = 0;
+      p.drownFrame = 0;
+      p.headUnderWater = false;
+      if (fullHealth) p.health = MAX_HEALTH;
     }
 
     function resetPlayer(fullHealth = false) {
-      player.x = 5 * TILE;
-      player.y = 8 * TILE;
-      player.vx = 0;
-      player.vy = 0;
-      player.isBurning = false;
-      player.burnTimer = 0;
-      player.hurtFlash = 0;
-      player.inWater = false;
-      player.inLava = false;
-      player.jumpPressed = false;
-      player.bubbles = getMaxBubbles();
-      player.bubbleFrame = 0;
-      player.drownFrame = 0;
-      player.headUnderWater = false;
-      if (fullHealth) player.health = MAX_HEALTH;
+      resetSandboxPlayer(player, fullHealth, 5 * TILE, 8 * TILE);
     }
+
+    function addSecondPlayer(name) {
+      secondPlayer = createSandboxPlayer({
+        isPrimary: false,
+        color: '#5fa8ff',
+        shirtColor: '#203e78',
+        x: 7 * TILE,
+        y: 8 * TILE,
+        name,
+      });
+      resetSandboxPlayer(secondPlayer, true, 7 * TILE, 8 * TILE);
+      updateAddPlayerButton();
+    }
+
+    function removeSecondPlayer() {
+      secondPlayer = null;
+      updateAddPlayerButton();
+    }
+
+    function updateAddPlayerButton() {
+      addPlayerBtn.textContent = secondPlayer ? 'Eliminar jugador' : 'Añadir jugador (M)';
+    }
+
     resetPlayer(true);
+    updateAddPlayerButton();
+
+    function showSandboxUI(show) {
+      sidebar.classList.toggle('hiddenUI', !show);
+      healthPanel.classList.toggle('hiddenUI', !show);
+      hud.classList.toggle('hiddenUI', !show);
+      addPlayerBtn.classList.toggle('hiddenUI', !show);
+      requestAnimationFrame(resizeCanvas);
+    }
+
+    function showFootballUI(show) {
+      footballHud.classList.toggle('hiddenUI', !show);
+      requestAnimationFrame(resizeCanvas);
+    }
+
+    function hideAllMenuScreens() {
+      startScreen.classList.add('hiddenUI');
+      modeScreen.classList.remove('show');
+      minigamesScreen.classList.remove('show');
+      sandboxNameScreen.classList.remove('show');
+      secondPlayerNameScreen.classList.remove('show');
+    }
+
+    function showStartMenu() {
+      currentMode = null;
+      gameStarted = false;
+      football.active = false;
+      football.jumpLatch = false;
+      showSandboxUI(false);
+      showFootballUI(false);
+      startScreen.classList.remove('hiddenUI');
+      modeScreen.classList.remove('show');
+      minigamesScreen.classList.remove('show');
+      sandboxNameScreen.classList.remove('show');
+      secondPlayerNameScreen.classList.remove('show');
+      playLobbyMusic();
+    }
+
+    function showModeMenu() {
+      currentMode = null;
+      gameStarted = false;
+      football.active = false;
+      football.jumpLatch = false;
+      startScreen.classList.add('hiddenUI');
+      modeScreen.classList.add('show');
+      minigamesScreen.classList.remove('show');
+      sandboxNameScreen.classList.remove('show');
+      secondPlayerNameScreen.classList.remove('show');
+      showSandboxUI(false);
+      showFootballUI(false);
+      playLobbyMusic();
+    }
+
+    function showMinigamesMenu() {
+      currentMode = null;
+      gameStarted = false;
+      football.active = false;
+      football.jumpLatch = false;
+      startScreen.classList.add('hiddenUI');
+      modeScreen.classList.remove('show');
+      minigamesScreen.classList.add('show');
+      sandboxNameScreen.classList.remove('show');
+      secondPlayerNameScreen.classList.remove('show');
+      showSandboxUI(false);
+      showFootballUI(false);
+      playLobbyMusic();
+    }
+
+    function openSandboxNamePrompt() {
+      modeScreen.classList.remove('show');
+      minigamesScreen.classList.remove('show');
+      sandboxNameScreen.classList.add('show');
+      sandboxNameInput.value = player.name || '';
+      sandboxNameConfirmBtn.disabled = normalizeName(sandboxNameInput.value).length === 0;
+      setTimeout(() => sandboxNameInput.focus(), 20);
+    }
+
+    function openSecondPlayerPrompt() {
+      if (currentMode !== 'sandbox') return;
+      secondPlayerNameScreen.classList.add('show');
+      secondPlayerNameInput.value = '';
+      secondPlayerNameConfirmBtn.disabled = true;
+      setTimeout(() => secondPlayerNameInput.focus(), 20);
+    }
+
+    function closeSecondPlayerPrompt() {
+      secondPlayerNameScreen.classList.remove('show');
+      secondPlayerNameInput.value = '';
+      secondPlayerNameConfirmBtn.disabled = true;
+      canvas.focus();
+    }
+
+    function startSandboxMode() {
+      hideAllMenuScreens();
+      currentMode = 'sandbox';
+      gameStarted = true;
+      football.active = false;
+      football.jumpLatch = false;
+      generateWorld();
+      dogs.length = 0;
+      merchants.length = 0;
+      tornadoes.length = 0;
+      pickups.length = 0;
+      fires.length = 0;
+      tnts.length = 0;
+      particles.length = 0;
+      meteors.length = 0;
+      lightnings.length = 0;
+      rains.length = 0;
+      quakes.length = 0;
+      resetPlayer(true);
+      if (secondPlayer) resetSandboxPlayer(secondPlayer, true, 7 * TILE, 8 * TILE);
+      showSandboxUI(true);
+      showFootballUI(false);
+      playGameMusic();
+      updateAddPlayerButton();
+      canvas.focus();
+    }
+
+    function makeFootballActor(x, y, team, role, color, speed) {
+      return { x, y, w: 28, h: 42, vx: 0, vy: 0, onGround: false, dir: team === 'red' ? 1 : -1, team, role, color, speed };
+    }
+
+    function updateFootballHud() {
+      footballScore.textContent = `⚽ ${football.playerScore} - ${football.enemyScore}`;
+      footballHint.textContent = 'Tú atacas la portería derecha. Muévete con A/D o flechas y salta con Espacio/W/↑.';
+      footballBanner.textContent = football.banner || '';
+    }
+
+    function resetFootballRound(resetScore = false) {
+      const w = canvas.width || gameWrap.clientWidth || 1280;
+      const h = canvas.height || gameWrap.clientHeight || 720;
+      football.floorY = h - 84;
+
+      if (resetScore) {
+        football.playerScore = 0;
+        football.enemyScore = 0;
+      }
+
+      football.player = makeFootballActor(100, football.floorY - 42, 'red', 'player', '#ff6a7a', 4.8);
+      football.ally = makeFootballActor(250, football.floorY - 42, 'red', 'ally', '#ffb24d', 3.4);
+      football.enemies = [
+        makeFootballActor(w - 140, football.floorY - 42, 'blue', 'enemy', '#65a7ff', 3.5),
+        makeFootballActor(w - 300, football.floorY - 42, 'blue', 'enemy', '#8fd7ff', 3.15),
+      ];
+
+      football.ball = { x: w / 2, y: football.floorY - 140, r: 16, vx: (Math.random() < 0.5 ? -1 : 1) * 2.2, vy: -1.5 };
+      football.banner = '';
+      football.bannerTimer = 0;
+      football.exitTimer = 0;
+      football.jumpLatch = false;
+      updateFootballHud();
+    }
+
+    function startFootballMode() {
+      hideAllMenuScreens();
+      currentMode = 'football';
+      gameStarted = true;
+      football.active = true;
+      showSandboxUI(false);
+      showFootballUI(true);
+      playGameMusic();
+      resetFootballRound(true);
+      canvas.focus();
+    }
+
+    function finishFootballMatch(win) {
+      football.banner = win ? '¡Ganaste! Regresando al selector...' : 'Perdiste... Regresando al selector...';
+      football.bannerTimer = 150;
+      football.exitTimer = 120;
+      updateFootballHud();
+    }
+
+    function updateFootballActor(actor, moveDir, jumpNow) {
+      if (moveDir !== 0) actor.dir = Math.sign(moveDir);
+      actor.vx = moveDir * actor.speed;
+      if (jumpNow && actor.onGround) actor.vy = -8.2;
+      actor.vy += 0.44;
+      if (actor.vy > 12) actor.vy = 12;
+      actor.x += actor.vx;
+      if (actor.x < 24) actor.x = 24;
+      if (actor.x + actor.w > canvas.width - 24) actor.x = canvas.width - 24 - actor.w;
+      actor.y += actor.vy;
+      actor.onGround = false;
+      if (actor.y + actor.h >= football.floorY) {
+        actor.y = football.floorY - actor.h;
+        actor.vy = 0;
+        actor.onGround = true;
+      }
+    }
+
+    function collideBallWithActor(actor, extraPower = 0) {
+      const ball = football.ball;
+      const nearestX = clamp(ball.x, actor.x, actor.x + actor.w);
+      const nearestY = clamp(ball.y, actor.y, actor.y + actor.h);
+      let dx = ball.x - nearestX;
+      let dy = ball.y - nearestY;
+      let dist = Math.hypot(dx, dy);
+      if (dist > ball.r + 1) return;
+      if (dist === 0) {
+        dx = actor.team === 'red' ? 1 : -1;
+        dy = -0.35;
+        dist = 1;
+      }
+      const nx = dx / dist;
+      const ny = dy / dist;
+      const overlap = ball.r - dist + 0.8;
+      ball.x += nx * overlap;
+      ball.y += ny * overlap;
+      const kickDir = actor.team === 'red' ? 1 : -1;
+      const moveBoost = Math.abs(actor.vx) * 0.8;
+      const power = 4.7 + moveBoost + extraPower;
+      ball.vx = nx * 2.2 + actor.vx * 0.42 + kickDir * power;
+      ball.vy = Math.min(-3.2, ny * 1.4 - 3.6 - extraPower * 0.15);
+    }
+
+    function updateFootball() {
+      if (!football.active) return;
+      football.floorY = canvas.height - 84;
+      const ball = football.ball;
+      const playerActor = football.player;
+      const ally = football.ally;
+      const enemies = football.enemies;
+      const moveLeft = keys['a'] || keys['arrowleft'];
+      const moveRight = keys['d'] || keys['arrowright'];
+      const jumpHeld = keys['w'] || keys['arrowup'] || keys[' '];
+      const sprintShot = keys['shift'] || keys['f'];
+
+      let playerDir = 0;
+      if (moveLeft) playerDir -= 1;
+      if (moveRight) playerDir += 1;
+
+      const wantsJump = jumpHeld && !football.jumpLatch;
+      if (wantsJump && playerActor.onGround) {
+        playerActor.vy = -8.5;
+        football.jumpLatch = true;
+        Sound.jump();
+      }
+      if (!jumpHeld) football.jumpLatch = false;
+
+      updateFootballActor(playerActor, playerDir, false);
+      const allyTargetX = ball.x < canvas.width * 0.58 ? ball.x - 15 : canvas.width * 0.38;
+      const allyDir = allyTargetX > ally.x + 10 ? 1 : allyTargetX < ally.x - 10 ? -1 : 0;
+      const allyJump = ally.onGround && ball.y < ally.y - 12 && Math.abs(ball.x - ally.x) < 80;
+      updateFootballActor(ally, allyDir, allyJump);
+
+      enemies.forEach((enemy, index) => {
+        const defendX = index === 0 ? canvas.width * 0.74 : canvas.width * 0.62;
+        const enemyTargetX = ball.x > canvas.width * 0.42 ? ball.x : defendX;
+        const enemyDir = enemyTargetX > enemy.x + 10 ? 1 : enemyTargetX < enemy.x - 10 ? -1 : 0;
+        const enemyJump = enemy.onGround && ball.y < enemy.y - 14 && Math.abs(ball.x - enemy.x) < 80;
+        updateFootballActor(enemy, enemyDir, enemyJump);
+      });
+
+      ball.vy += 0.34;
+      if (ball.vy > 13) ball.vy = 13;
+      ball.x += ball.vx;
+      ball.y += ball.vy;
+      ball.vx *= 0.995;
+
+      if (ball.y - ball.r < 12) { ball.y = 12 + ball.r; ball.vy *= -0.65; }
+      if (ball.x - ball.r < 14) { ball.x = 14 + ball.r; ball.vx *= -0.76; }
+      if (ball.x + ball.r > canvas.width - 14) { ball.x = canvas.width - 14 - ball.r; ball.vx *= -0.76; }
+      if (ball.y + ball.r >= football.floorY) {
+        ball.y = football.floorY - ball.r;
+        ball.vy *= -0.72;
+        ball.vx *= 0.985;
+        if (Math.abs(ball.vy) < 1.1) ball.vy = 0;
+      }
+
+      collideBallWithActor(playerActor, sprintShot ? 1.8 : 0.45);
+      collideBallWithActor(ally, 0.55);
+      enemies.forEach(enemy => collideBallWithActor(enemy, 0.55));
+
+      const goalOpenTop = football.floorY - 120;
+      if (ball.x + ball.r >= canvas.width - 18 && ball.y > goalOpenTop) {
+        football.playerScore++;
+        Sound.boom();
+        if (football.playerScore >= 3) {
+          football.banner = '¡Gol definitivo!';
+          updateFootballHud();
+          finishFootballMatch(true);
+          return;
+        }
+        resetFootballRound(false);
+        football.banner = '¡Gol tuyo!';
+        football.bannerTimer = 80;
+        updateFootballHud();
+      } else if (ball.x - ball.r <= 18 && ball.y > goalOpenTop) {
+        football.enemyScore++;
+        Sound.boom();
+        if (football.enemyScore >= 3) {
+          football.banner = 'Te anotaron el tercero...';
+          updateFootballHud();
+          finishFootballMatch(false);
+          return;
+        }
+        resetFootballRound(false);
+        football.banner = 'Gol del rival';
+        football.bannerTimer = 80;
+        updateFootballHud();
+      }
+
+      if (football.bannerTimer > 0) football.bannerTimer--;
+      if (football.exitTimer > 0) {
+        football.exitTimer--;
+        if (football.exitTimer <= 0) showMinigamesMenu();
+      }
+      updateFootballHud();
+    }
+
+    function drawFootballActor(actor, label) {
+      const x = actor.x;
+      const y = actor.y;
+      ctx.fillStyle = '#222a38';
+      ctx.fillRect(x + 6, y + 5, 14, 12);
+      ctx.fillStyle = actor.color;
+      ctx.fillRect(x + 4, y + 16, 18, 18);
+      ctx.fillStyle = '#ffe0bd';
+      ctx.fillRect(x + 6, y + 1, 14, 14);
+      ctx.fillStyle = '#1d1d26';
+      ctx.fillRect(x + 9, y + 6, 2, 2);
+      ctx.fillRect(x + 15, y + 6, 2, 2);
+      ctx.fillStyle = '#2e3240';
+      ctx.fillRect(x + 6, y + 34, 5, 8);
+      ctx.fillRect(x + 15, y + 34, 5, 8);
+      ctx.fillStyle = 'rgba(0,0,0,0.38)';
+      roundRectFill(x - 6, y - 18, 40, 12, 6);
+      ctx.fillStyle = '#fff';
+      ctx.font = '11px Arial';
+      ctx.fillText(label, x + 2, y - 9);
+    }
+
+    function drawFootball() {
+      const w = canvas.width;
+      const h = canvas.height;
+      const floor = football.floorY || (h - 84);
+      const fieldTop = floor - 320;
+      ctx.clearRect(0, 0, w, h);
+      const bg = ctx.createLinearGradient(0, 0, 0, h);
+      bg.addColorStop(0, '#132031');
+      bg.addColorStop(0.45, '#1f3954');
+      bg.addColorStop(1, '#3a6b42');
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, w, h);
+      ctx.fillStyle = '#273548';
+      ctx.fillRect(0, 0, w, fieldTop - 18);
+      for (let i = 0; i < 10; i++) {
+        ctx.fillStyle = i % 2 === 0 ? '#4da957' : '#41964d';
+        ctx.fillRect(0, fieldTop + i * 32, w, 32);
+      }
+      ctx.strokeStyle = 'rgba(255,255,255,0.9)';
+      ctx.lineWidth = 4;
+      ctx.strokeRect(18, fieldTop, w - 36, floor - fieldTop);
+      ctx.beginPath();
+      ctx.moveTo(w / 2, fieldTop);
+      ctx.lineTo(w / 2, floor);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(w / 2, fieldTop + (floor - fieldTop) / 2, 54, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.strokeRect(18, floor - 120, 46, 120);
+      ctx.strokeRect(w - 64, floor - 120, 46, 120);
+      ctx.strokeRect(18, floor - 175, 95, 175);
+      ctx.strokeRect(w - 113, floor - 175, 95, 175);
+      ctx.fillStyle = '#e9f0ff';
+      ctx.fillRect(4, floor - 122, 14, 122);
+      ctx.fillRect(w - 18, floor - 122, 14, 122);
+      drawFootballActor(football.player, 'TÚ');
+      drawFootballActor(football.ally, 'BOT A');
+      drawFootballActor(football.enemies[0], 'BOT B');
+      drawFootballActor(football.enemies[1], 'BOT C');
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(football.ball.x, football.ball.y, football.ball.r, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#202020';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(football.ball.x, football.ball.y, football.ball.r, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.fillStyle = '#202020';
+      ctx.beginPath();
+      ctx.arc(football.ball.x, football.ball.y, 4, 0, Math.PI * 2);
+      ctx.fill();
+      if (football.bannerTimer > 0 || football.exitTimer > 0) {
+        ctx.fillStyle = 'rgba(0,0,0,0.36)';
+        roundRectFill(w / 2 - 180, 48, 360, 54, 16);
+        ctx.fillStyle = '#fff2a8';
+        ctx.font = 'bold 26px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText(football.banner || '', w / 2, 82);
+        ctx.textAlign = 'left';
+      }
+    }
 
     function getSelectedTool() {
       return state.selected[state.activeCategory];
@@ -698,14 +1543,17 @@ Gracias por jugar.
     function isWaterId(id) {
       return id === 'water' || id === 'water_still';
     }
+
     function isLavaId(id) {
       return id === 'lava' || id === 'lava_still';
     }
+
     function baseLiquidId(id) {
       if (isWaterId(id)) return 'water';
       if (isLavaId(id)) return 'lava';
       return id;
     }
+
     function stillLiquidId(id) {
       if (isWaterId(id)) return 'water_still';
       if (isLavaId(id)) return 'lava_still';
@@ -796,18 +1644,10 @@ Gracias por jugar.
           const localSurface = surfaceHeights[x];
           const carveDepth = Math.max(1, depth - Math.floor(dist / 2));
 
-          for (let y = localSurface; y <= Math.min(WORLD_ROWS - 2, localSurface + carveDepth); y++) {
-            world[y][x] = null;
-          }
-          for (let y = localSurface + 1; y <= Math.min(WORLD_ROWS - 2, localSurface + carveDepth); y++) {
-            world[y][x] = 'water_still';
-          }
-          if (world[localSurface][x] === null && dist === width) {
-            world[localSurface][x] = 'grass';
-          }
-          if (world[localSurface + carveDepth + 1]?.[x] === null) {
-            world[localSurface + carveDepth + 1][x] = 'dirt';
-          }
+          for (let y = localSurface; y <= Math.min(WORLD_ROWS - 2, localSurface + carveDepth); y++) world[y][x] = null;
+          for (let y = localSurface + 1; y <= Math.min(WORLD_ROWS - 2, localSurface + carveDepth); y++) world[y][x] = 'water_still';
+          if (world[localSurface][x] === null && dist === width) world[localSurface][x] = 'grass';
+          if (world[localSurface + carveDepth + 1]?.[x] === null) world[localSurface + carveDepth + 1][x] = 'dirt';
         }
       }
 
@@ -826,6 +1666,21 @@ Gracias por jugar.
       particles.push({ x, y, color, vx, vy, life, size });
     }
 
+    function guardarNombreEnGoogleForms(nombre) {
+  const formUrl = "https://docs.google.com/forms/d/e/1FAIpQLScP6fF6vq0N-p2p4HxV04mqfEOQIl-OxADbScY1SjDe4VZxdw/formResponse";
+
+  const data = new FormData();
+  data.append("entry.116035415", nombre);
+
+  fetch(formUrl, {
+    method: "POST",
+    mode: "no-cors",
+    body: data
+  }).catch(() => {
+    // no rompas el juego si falla
+  });
+}
+
     function spawnAnimal(kind, tileX, tileY) {
       const defs = {
         dog:    { w:24, h:18, speed:1.0, body:'#7b5c38', accent:'#9b7347', bubble:'guau' },
@@ -835,27 +1690,9 @@ Gracias por jugar.
         fish:   { w:20, h:12, speed:1.05, body:'#51a6ff', accent:'#9dd4ff', bubble:'blub' },
       };
       const d = defs[kind];
-      dogs.push({
-        kind,
-        x: tileX * TILE + 4,
-        y: tileY * TILE - d.h,
-        w: d.w,
-        h: d.h,
-        vx: 0,
-        vy: 0,
-        dir: Math.random() < 0.5 ? -1 : 1,
-        onGround: false,
-        barkTimer: 0,
-        speed: d.speed,
-        body: d.body,
-        accent: d.accent,
-        bubble: d.bubble,
-        flap: Math.random() * 100,
-      });
+      dogs.push({ kind, x: tileX * TILE + 4, y: tileY * TILE - d.h, w: d.w, h: d.h, vx: 0, vy: 0, dir: Math.random() < 0.5 ? -1 : 1, onGround: false, barkTimer: 0, speed: d.speed, body: d.body, accent: d.accent, bubble: d.bubble, flap: Math.random() * 100 });
       Sound.place();
     }
-
-    function spawnDog(tileX, tileY) { spawnAnimal('dog', tileX, tileY); }
 
     function spawnEntity(kind, tileX, tileY) {
       const defs = {
@@ -866,26 +1703,9 @@ Gracias por jugar.
         villager: { shirt:'#2e9b5f', pants:'#244d37', text:'Buen día' },
       };
       const d = defs[kind];
-      merchants.push({
-        kind,
-        x: tileX * TILE + 4,
-        y: tileY * TILE - 30,
-        w: 24,
-        h: 30,
-        greet: 0,
-        vx: Math.random() < 0.5 ? -0.55 : 0.55,
-        vy: 0,
-        onGround: false,
-        shirt: d.shirt,
-        pants: d.pants,
-        text: d.text,
-        walkTimer: 80 + Math.floor(Math.random() * 140),
-        actionTimer: 90 + Math.floor(Math.random() * 120),
-      });
+      merchants.push({ kind, x: tileX * TILE + 4, y: tileY * TILE - 30, w: 24, h: 30, greet: 0, vx: Math.random() < 0.5 ? -0.55 : 0.55, vy: 0, onGround: false, shirt: d.shirt, pants: d.pants, text: d.text, walkTimer: 80 + Math.floor(Math.random() * 140), actionTimer: 90 + Math.floor(Math.random() * 120) });
       Sound.place();
     }
-
-    function spawnMerchant(tileX, tileY) { spawnEntity('merchant', tileX, tileY); }
 
     function spawnTornado(tileX, tileY) {
       tornadoes.push({ x: tileX * TILE + TILE / 2, y: tileY * TILE + TILE / 2, radius: 128, timer: 600, spin: 0 });
@@ -902,13 +1722,10 @@ Gracias por jugar.
           if (Math.random() < 0.65) setBlock(x, y, null);
         }
       }
-      if (distanceSq(player.x + player.w/2, player.y + player.h/2, cx, cy) < (TILE * 3) ** 2) damagePlayer(10, 'lightning');
-      for (const a of dogs) {
-        if (distanceSq(a.x + a.w/2, a.y + a.h/2, cx, cy) < (TILE * 3) ** 2) a.vy = -4;
-      }
-      for (const n of merchants) {
-        if (distanceSq(n.x + n.w/2, n.y + n.h/2, cx, cy) < (TILE * 3) ** 2) n.vy = -4;
-      }
+      const targets = [player, secondPlayer].filter(Boolean);
+      for (const p of targets) if (distanceSq(p.x + p.w/2, p.y + p.h/2, cx, cy) < (TILE * 3) ** 2) damageSandboxPlayer(p, 10, 'lightning');
+      for (const a of dogs) if (distanceSq(a.x + a.w/2, a.y + a.h/2, cx, cy) < (TILE * 3) ** 2) a.vy = -4;
+      for (const n of merchants) if (distanceSq(n.x + n.w/2, n.y + n.h/2, cx, cy) < (TILE * 3) ** 2) n.vy = -4;
       Sound.lightning();
     }
 
@@ -945,8 +1762,6 @@ Gracias por jugar.
       Sound.place();
     }
 
-    function spawnPickupLighter(tileX, tileY) { spawnPickup('lighter', tileX, tileY); }
-
     function spawnExplosive(type, tileX, tileY) {
       const defs = {
         tnt:      { radius: 92, auto: false, fuse: 150, label:'TNT' },
@@ -956,26 +1771,10 @@ Gracias por jugar.
         mine:     { radius: 72, auto: true,  fuse: 9999, label:'MINE', mine: true },
       };
       const d = defs[type];
-      tnts.push({
-        type,
-        label: d.label,
-        x: tileX * TILE + 2,
-        y: tileY * TILE,
-        w: 28,
-        h: 28,
-        vy: 0,
-        vx: 0,
-        armed: d.auto,
-        fuse: d.auto ? d.fuse : 0,
-        defaultFuse: d.fuse,
-        radius: d.radius,
-        mine: !!d.mine,
-      });
+      tnts.push({ type, label: d.label, x: tileX * TILE + 2, y: tileY * TILE, w: 28, h: 28, vy: 0, vx: 0, armed: d.auto, fuse: d.auto ? d.fuse : 0, defaultFuse: d.fuse, radius: d.radius, mine: !!d.mine });
       Sound.place();
       if (d.auto) Sound.tnt();
     }
-
-    function spawnTNT(tileX, tileY) { spawnExplosive('tnt', tileX, tileY); }
 
     function spawnFire(tileX, tileY, duration = 300) {
       const existing = fires.find(f => f.tileX === tileX && f.tileY === tileY);
@@ -988,14 +1787,14 @@ Gracias por jugar.
       Sound.fire();
     }
 
-    function armNearestTNT() {
+    function armNearestTNT(user = player) {
       let best = null;
       let bestDist = 999999;
       for (const tnt of tnts) {
         if (tnt.mine || tnt.armed) continue;
-        const dx = (tnt.x + tnt.w/2) - (player.x + player.w/2);
-        const dy = (tnt.y + tnt.h/2) - (player.y + player.h/2);
-        const d = dx*dx + dy*dy;
+        const dx = (tnt.x + tnt.w/2) - (user.x + user.w/2);
+        const dy = (tnt.y + tnt.h/2) - (user.y + user.h/2);
+        const d = dx * dx + dy * dy;
         if (d < bestDist && d < (TILE * 4.5) ** 2) {
           best = tnt;
           bestDist = d;
@@ -1008,18 +1807,20 @@ Gracias por jugar.
       }
     }
 
-    function damagePlayer(amount, source = '') {
-      if (player.inventory.armorTimer > 0) amount *= 0.55;
-      player.health -= amount;
-      player.hurtFlash = 8;
+    function damageSandboxPlayer(target, amount, source = '') {
+      if (!target) return;
+      if (target.inventory.armorTimer > 0) amount *= 0.55;
+      target.health -= amount;
+      target.hurtFlash = 8;
       if (source === 'lava' || source === 'fire') {
-        player.isBurning = true;
-        player.burnTimer = Math.max(player.burnTimer, 180);
+        target.isBurning = true;
+        target.burnTimer = Math.max(target.burnTimer, 180);
       }
       if (source !== 'drown') Sound.hurt();
-      if (player.health <= 0) {
-        player.health = 0;
-        resetPlayer(true);
+      if (target.health <= 0) {
+        target.health = 0;
+        if (target.isPrimary) resetSandboxPlayer(target, true, 5 * TILE, 8 * TILE);
+        else resetSandboxPlayer(target, true, 7 * TILE, 8 * TILE);
       }
     }
 
@@ -1031,8 +1832,7 @@ Gracias por jugar.
       for (let ty = tileCY - radiusTiles; ty <= tileCY + radiusTiles; ty++) {
         for (let tx = tileCX - radiusTiles; tx <= tileCX + radiusTiles; tx++) {
           const block = getBlock(tx, ty);
-          if (!block || block === 'BOUNDARY') continue;
-          if (block === 'obsidian') continue;
+          if (!block || block === 'BOUNDARY' || block === 'obsidian') continue;
           const dx = tx * TILE + TILE/2 - cx;
           const dy = ty * TILE + TILE/2 - cy;
           if (dx*dx + dy*dy <= radiusPx * radiusPx) {
@@ -1043,6 +1843,7 @@ Gracias por jugar.
       }
 
       const damageCircle = (obj, strength = 1) => {
+        if (!obj) return false;
         const ox = obj.x + obj.w/2;
         const oy = obj.y + obj.h/2;
         const dx = ox - cx;
@@ -1057,7 +1858,8 @@ Gracias por jugar.
         return false;
       };
 
-      if (damageCircle(player, 1.3)) damagePlayer(22, 'explosion');
+      if (damageCircle(player, 1.3)) damageSandboxPlayer(player, 22, 'explosion');
+      if (secondPlayer && damageCircle(secondPlayer, 1.2)) damageSandboxPlayer(secondPlayer, 18, 'explosion');
       dogs.forEach(d => damageCircle(d, 1));
       merchants.forEach(m => damageCircle(m, 1));
 
@@ -1089,7 +1891,9 @@ Gracias por jugar.
     function canEditTile(tileX, tileY) {
       if (tileX < 0 || tileX >= WORLD_COLS || tileY < 0 || tileY >= WORLD_ROWS) return false;
       const tileRect = { x: tileX * TILE, y: tileY * TILE, w: TILE, h: TILE };
-      return !overlapRect(tileRect, player);
+      if (overlapRect(tileRect, player)) return false;
+      if (secondPlayer && overlapRect(tileRect, secondPlayer)) return false;
+      return true;
     }
 
     function eraseAtMouse() {
@@ -1097,392 +1901,155 @@ Gracias por jugar.
       if (!canEditTile(tileX, tileY)) return;
       setBlock(tileX, tileY, null);
       Sound.erase();
-
       const tileRect = { x: tileX * TILE, y: tileY * TILE, w: TILE, h: TILE };
       const eraseFrom = arr => {
-        for (let i = arr.length - 1; i >= 0; i--) {
-          if (overlapRect(arr[i], tileRect)) arr.splice(i, 1);
-        }
+        for (let i = arr.length - 1; i >= 0; i--) if (overlapRect(arr[i], tileRect)) arr.splice(i, 1);
       };
       eraseFrom(dogs);
       eraseFrom(merchants);
       eraseFrom(pickups);
       eraseFrom(tnts);
       eraseFrom(meteors);
-      for (let i = fires.length - 1; i >= 0; i--) {
-        if (fires[i].tileX === tileX && fires[i].tileY === tileY) fires.splice(i, 1);
-      }
-      for (let i = tornadoes.length - 1; i >= 0; i--) {
-        const t = tornadoes[i];
-        if (Math.floor(t.x / TILE) === tileX && Math.floor(t.y / TILE) === tileY) tornadoes.splice(i, 1);
-      }
-      for (let i = lightnings.length - 1; i >= 0; i--) {
-        if (lightnings[i].tileX === tileX && lightnings[i].tileY === tileY) lightnings.splice(i, 1);
-      }
+      for (let i = fires.length - 1; i >= 0; i--) if (fires[i].tileX === tileX && fires[i].tileY === tileY) fires.splice(i, 1);
+      for (let i = tornadoes.length - 1; i >= 0; i--) if (Math.floor(tornadoes[i].x / TILE) === tileX && Math.floor(tornadoes[i].y / TILE) === tileY) tornadoes.splice(i, 1);
+      for (let i = lightnings.length - 1; i >= 0; i--) if (lightnings[i].tileX === tileX && lightnings[i].tileY === tileY) lightnings.splice(i, 1);
     }
 
     function placeAtMouse() {
       const { tileX, tileY } = mouse;
       if (!canEditTile(tileX, tileY)) return;
-
       const cat = state.activeCategory;
       const selected = getSelectedTool();
-
       if (cat === 'blocks') {
         setBlock(tileX, tileY, selected);
         Sound.place();
         return;
       }
-
-      if (cat === 'animals') {
-        if (selected === 'dog') return spawnAnimal('dog', tileX, tileY);
-        if (selected === 'cat') return spawnAnimal('cat', tileX, tileY);
-        if (selected === 'lion') return spawnAnimal('lion', tileX, tileY);
-        if (selected === 'rabbit') return spawnAnimal('rabbit', tileX, tileY);
-        if (selected === 'fish') return spawnAnimal('fish', tileX, tileY);
-      }
-
-      if (cat === 'entities') {
-        if (selected === 'merchant') return spawnEntity('merchant', tileX, tileY);
-        if (selected === 'guard') return spawnEntity('guard', tileX, tileY);
-        if (selected === 'doctor') return spawnEntity('doctor', tileX, tileY);
-        if (selected === 'builder') return spawnEntity('builder', tileX, tileY);
-        if (selected === 'villager') return spawnEntity('villager', tileX, tileY);
-      }
-
+      if (cat === 'animals') return spawnAnimal(selected, tileX, tileY);
+      if (cat === 'entities') return spawnEntity(selected, tileX, tileY);
       if (cat === 'disasters') return spawnDisaster(selected, tileX, tileY);
       if (cat === 'items') return spawnPickup(selected, tileX, tileY);
       if (cat === 'explosives') return spawnExplosive(selected, tileX, tileY);
     }
 
-    function tryUseLighter() {
-      if (!player.inventory.hasLighter) return;
-      const dx = mouse.tileX - Math.floor((player.x + player.w/2) / TILE);
-      const dy = mouse.tileY - Math.floor((player.y + player.h/2) / TILE);
+    function tryUseLighter(user = player) {
+      if (!user.inventory.hasLighter) return;
+      const dx = mouse.tileX - Math.floor((user.x + user.w/2) / TILE);
+      const dy = mouse.tileY - Math.floor((user.y + user.h/2) / TILE);
       if (dx*dx + dy*dy > 25) return;
       spawnFire(mouse.tileX, mouse.tileY, 300);
     }
 
-    function handleJump() {
-      if (player.inWater) {
-        player.vy = Math.min(player.vy, -4.8);
+    function handleJump(target) {
+      if (!target) return;
+      if (target.inWater) {
+        target.vy = Math.min(target.vy, -4.8);
         Sound.splash();
         return;
       }
-      if (player.onGround) {
-        player.vy = JUMP_FORCE;
-        player.onGround = false;
+      if (target.onGround) {
+        target.vy = JUMP_FORCE;
+        target.onGround = false;
         Sound.jump();
       }
     }
 
-    playBtn.addEventListener('click', () => {
-      Sound.ensure();
-      Sound.playStart();
-      gameStarted = true;
-      startScreen.classList.add('hiddenUI');
-      creditsOverlay.style.display = 'none';
-      canvas.focus();
-    });
+    function updateStatusEffects(target) {
+      const wasInWater = target.inWater;
+      target.inWater = rectTouchesPredicate(target.x, target.y, target.w, target.h, (block) => isWaterId(block));
+      target.inLava = rectTouchesPredicate(target.x, target.y, target.w, target.h, (block) => isLavaId(block));
+      if (!wasInWater && target.inWater) Sound.splash();
 
-    creditsBtn.addEventListener('click', () => {
-      Sound.ensure();
-      Sound.click();
-      creditsOverlay.style.display = 'flex';
-    });
-
-    closeCredits.addEventListener('click', () => {
-      Sound.click();
-      creditsOverlay.style.display = 'none';
-    });
-
-    creditsOverlay.addEventListener('click', (e) => {
-      if (e.target === creditsOverlay) {
-        Sound.click();
-        creditsOverlay.style.display = 'none';
-      }
-    });
-
-    document.addEventListener('keydown', (e) => {
-      const k = e.key.toLowerCase();
-      keys[k] = true;
-      if (e.code === 'Space' || k === 'w' || e.key === 'ArrowUp') {
-        e.preventDefault();
-        if (!player.jumpPressed && gameStarted) {
-          handleJump();
-          player.jumpPressed = true;
-        }
-      }
-      if (!gameStarted) return;
-      if (k === 'r') resetPlayer(true);
-      if (k === 'f') tryUseLighter();
-      if (k === 'e') armNearestTNT();
-      if (k === 'shift') e.preventDefault();
-    });
-
-    document.addEventListener('keyup', (e) => {
-      const k = e.key.toLowerCase();
-      keys[k] = false;
-      if (e.code === 'Space' || k === 'w' || e.key === 'ArrowUp') {
-        player.jumpPressed = false;
-      }
-    });
-
-    canvas.addEventListener('mousemove', (e) => {
-      updateMouseTileFromEvent(e);
-      if (!gameStarted) return;
-      if (mouse.leftDown) {
-        if (state.editMode === 'place') placeAtMouse();
-        else eraseAtMouse();
-      }
-      if (mouse.rightDown) eraseAtMouse();
-    });
-    canvas.addEventListener('mouseleave', () => { mouse.inside = false; });
-    canvas.addEventListener('contextmenu', (e) => e.preventDefault());
-    canvas.addEventListener('dragstart', (e) => e.preventDefault());
-    canvas.addEventListener('mousedown', (e) => {
-      if (!gameStarted) return;
-      Sound.ensure();
-      canvas.focus();
-      updateMouseTileFromEvent(e);
-      if (e.button === 0) {
-        mouse.leftDown = true;
-        if (state.editMode === 'place') placeAtMouse();
-        else eraseAtMouse();
-      } else if (e.button === 2) {
-        mouse.rightDown = true;
-        eraseAtMouse();
-      }
-    });
-    window.addEventListener('mouseup', (e) => {
-      if (e.button === 0) mouse.leftDown = false;
-      if (e.button === 2) mouse.rightDown = false;
-    });
-
-    placeModeBtn.addEventListener('click', () => {
-      Sound.click();
-      state.editMode = 'place';
-      placeModeBtn.classList.add('active');
-      eraseModeBtn.classList.remove('active');
-    });
-    eraseModeBtn.addEventListener('click', () => {
-      Sound.click();
-      state.editMode = 'erase';
-      eraseModeBtn.classList.add('active');
-      placeModeBtn.classList.remove('active');
-    });
-
-    function buildTabsUI() {
-      categoryTabs.innerHTML = '';
-      for (const cat of categories) {
-        const btn = document.createElement('button');
-        btn.className = 'tabBtn' + (state.activeCategory === cat.id ? ' active' : '');
-        btn.textContent = cat.label;
-        btn.addEventListener('click', () => {
-          Sound.click();
-          state.activeCategory = cat.id;
-          buildTabsUI();
-          buildMaterialUI();
-        });
-        categoryTabs.appendChild(btn);
-      }
-    }
-
-    function buildMaterialUI() {
-      materialGrid.innerHTML = '';
-      const list = toolsByCategory[state.activeCategory];
-      list.forEach((item, index) => {
-        const btn = document.createElement('button');
-        btn.className = 'materialBtn' + (state.selected[state.activeCategory] === item.id ? ' selected' : '');
-
-        let swatch = '';
-        let desc = '';
-        if (state.activeCategory === 'blocks') {
-          const mat = materialById[item.id];
-          const bg = item.id === 'water'
-            ? 'linear-gradient(#84caff 0 25%, #2f8fff 25% 100%)'
-            : item.id === 'lava'
-            ? 'linear-gradient(#ffd25f 0 25%, #ff642e 25% 100%)'
-            : `linear-gradient(${mat.top || mat.color} 0 25%, ${mat.color} 25% 100%)`;
-          swatch = `<div class="swatch" style="background:${bg};"></div>`;
-          desc = item.id === 'water' ? 'Bloque líquido' : item.id === 'lava' ? 'Líquido dañino' : 'Bloque sólido';
-        } else {
-          swatch = `<div class="swatch" style="background:#2c3550;">${item.icon || '•'}</div>`;
-          desc = item.desc || 'Ejemplo funcional';
-        }
-
-        btn.innerHTML = `
-          ${swatch}
-          <div>
-            <div style="font-weight:700">${index + 1}. ${item.name}</div>
-            <div style="font-size:12px;color:#aab3c7">${desc}</div>
-          </div>
-        `;
-        btn.addEventListener('click', () => {
-          Sound.click();
-          state.selected[state.activeCategory] = item.id;
-          buildMaterialUI();
-        });
-        materialGrid.appendChild(btn);
-      });
-    }
-
-    buildTabsUI();
-    buildMaterialUI();
-
-    function updateFluids() {
-      const next = world.map(row => row.slice());
-      const toActivate = [];
-
-      const canOccupy = (x, y) => {
-        if (x < 0 || x >= WORLD_COLS || y < 0 || y >= WORLD_ROWS) return false;
-        return world[y][x] === null;
-      };
-
-      for (let y = WORLD_ROWS - 2; y >= 0; y--) {
-        for (let x = 0; x < WORLD_COLS; x++) {
-          const block = world[y][x];
-          if (!block) continue;
-          if (!isWaterId(block) && !isLavaId(block)) continue;
-
-          const activeId = baseLiquidId(block);
-          const stillId = stillLiquidId(block);
-          const below = getBlock(x, y + 1);
-          const left = getBlock(x - 1, y);
-          const right = getBlock(x + 1, y);
-
-          const belowEmpty = canOccupy(x, y + 1);
-          const leftSupported = getBlock(x - 1, y + 1) !== null && getBlock(x - 1, y + 1) !== 'BOUNDARY';
-          const rightSupported = getBlock(x + 1, y + 1) !== null && getBlock(x + 1, y + 1) !== 'BOUNDARY';
-          const leftEmpty = canOccupy(x - 1, y) && leftSupported;
-          const rightEmpty = canOccupy(x + 1, y) && rightSupported;
-
-          if (belowEmpty) {
-            next[y][x] = stillId;
-            next[y + 1][x] = activeId;
-            continue;
-          }
-
-          if (leftEmpty || rightEmpty) {
-            next[y][x] = stillId;
-            const goLeft = ((x + y + frameCount) % 2 === 0);
-            if (goLeft && leftEmpty) next[y][x - 1] = activeId;
-            else if (!goLeft && rightEmpty) next[y][x + 1] = activeId;
-            else if (leftEmpty) next[y][x - 1] = activeId;
-            else if (rightEmpty) next[y][x + 1] = activeId;
-            continue;
-          }
-
-          next[y][x] = stillId;
-
-          if (block === 'water_still' || block === 'lava_still') {
-            if (below === null || (left === null && leftSupported) || (right === null && rightSupported)) {
-              toActivate.push([x, y, activeId]);
-            }
-          }
-        }
-      }
-
-      for (const [x, y, activeId] of toActivate) next[y][x] = activeId;
-      for (let y = 0; y < WORLD_ROWS; y++) for (let x = 0; x < WORLD_COLS; x++) world[y][x] = next[y][x];
-    }
-
-    function updateStatusEffects() {
-      const wasInWater = player.inWater;
-      player.inWater = rectTouchesPredicate(player.x, player.y, player.w, player.h, (block) => isWaterId(block));
-      player.inLava = rectTouchesPredicate(player.x, player.y, player.w, player.h, (block) => isLavaId(block));
-
-      if (!wasInWater && player.inWater) Sound.splash();
-
-      const headY = player.y + 3;
-      const headLeft = Math.floor((player.x + 4) / TILE);
-      const headRight = Math.floor((player.x + player.w - 5) / TILE);
+      const headY = target.y + 3;
+      const headLeft = Math.floor((target.x + 4) / TILE);
+      const headRight = Math.floor((target.x + target.w - 5) / TILE);
       const headTileY = Math.floor(headY / TILE);
       const leftBlock = getBlock(headLeft, headTileY);
       const rightBlock = getBlock(headRight, headTileY);
-      player.headUnderWater = isWaterId(leftBlock) || isWaterId(rightBlock);
+      target.headUnderWater = isWaterId(leftBlock) || isWaterId(rightBlock);
 
-      const maxBubbles = getMaxBubbles();
-      if (player.bubbles > maxBubbles) player.bubbles = maxBubbles;
-
-      if (player.headUnderWater) {
-        player.bubbleFrame++;
-        if (player.bubbles > 0 && player.bubbleFrame >= 60) {
-          player.bubbles--;
-          player.bubbleFrame = 0;
+      const maxBubbles = getMaxBubbles(target);
+      if (target.bubbles > maxBubbles) target.bubbles = maxBubbles;
+      if (target.headUnderWater) {
+        target.bubbleFrame++;
+        if (target.bubbles > 0 && target.bubbleFrame >= 60) {
+          target.bubbles--;
+          target.bubbleFrame = 0;
         }
-        if (player.bubbles <= 0) {
-          player.drownFrame++;
-          if (player.drownFrame >= 30) {
-            damagePlayer(4, 'drown');
-            player.drownFrame = 0;
+        if (target.bubbles <= 0) {
+          target.drownFrame++;
+          if (target.drownFrame >= 30) {
+            damageSandboxPlayer(target, 4, 'drown');
+            target.drownFrame = 0;
           }
         }
       } else {
-        player.bubbles = maxBubbles;
-        player.bubbleFrame = 0;
-        player.drownFrame = 0;
+        target.bubbles = maxBubbles;
+        target.bubbleFrame = 0;
+        target.drownFrame = 0;
       }
 
-      if (player.inLava && frameCount % 10 === 0) damagePlayer(4, 'lava');
-      if (player.isBurning) {
-        if (frameCount % 20 === 0) damagePlayer(2, 'fire');
-        player.burnTimer--;
-        if (player.burnTimer <= 0 || player.inWater) {
-          player.isBurning = false;
-          player.burnTimer = 0;
+      if (target.inLava && frameCount % 10 === 0) damageSandboxPlayer(target, 4, 'lava');
+      if (target.isBurning) {
+        if (frameCount % 20 === 0) damageSandboxPlayer(target, 2, 'fire');
+        target.burnTimer--;
+        if (target.burnTimer <= 0 || target.inWater) {
+          target.isBurning = false;
+          target.burnTimer = 0;
         }
       }
-      if (player.hurtFlash > 0) player.hurtFlash--;
+      if (target.hurtFlash > 0) target.hurtFlash--;
     }
 
-    function updatePlayer() {
-      updateStatusEffects();
+    function updateSandboxPlayer(target, controls) {
+      updateStatusEffects(target);
+      if (target.inventory.armorTimer > 0) target.inventory.armorTimer--;
+      if (target.inventory.bootsTimer > 0) target.inventory.bootsTimer--;
+      if (target.inventory.oxygenTimer > 0) target.inventory.oxygenTimer--;
 
-      if (player.inventory.armorTimer > 0) player.inventory.armorTimer--;
-      if (player.inventory.bootsTimer > 0) player.inventory.bootsTimer--;
-      if (player.inventory.oxygenTimer > 0) player.inventory.oxygenTimer--;
-
-      const movingLeft = keys['a'] || keys['arrowleft'];
-      const movingRight = keys['d'] || keys['arrowright'];
+      const movingLeft = controls.left;
+      const movingRight = controls.right;
       const holdingShift = keys['shift'];
-      const boostRun = player.inventory.bootsTimer > 0 ? 1.25 : 1;
-      const currentMoveSpeed = player.inWater ? 2.1 : ((holdingShift ? RUN_SPEED : MOVE_SPEED) * boostRun);
+      const boostRun = target.inventory.bootsTimer > 0 ? 1.25 : 1;
+      const currentMoveSpeed = target.inWater ? 2.1 : ((holdingShift ? RUN_SPEED : MOVE_SPEED) * boostRun);
 
-      player.vx = 0;
-      if (movingLeft) player.vx = -currentMoveSpeed;
-      if (movingRight) player.vx = currentMoveSpeed;
+      target.vx = 0;
+      if (movingLeft) target.vx = -currentMoveSpeed;
+      if (movingRight) target.vx = currentMoveSpeed;
 
-      if (player.inWater) {
-        player.vy += 0.08;
-        if (holdingShift) player.vy -= 0.33;
-        if (!movingLeft && !movingRight && !holdingShift) player.vy *= 0.96;
-        player.vy = Math.max(-4.4, Math.min(3.2, player.vy));
+      if (target.inWater) {
+        target.vy += 0.08;
+        if (holdingShift) target.vy -= 0.33;
+        if (!movingLeft && !movingRight && !holdingShift) target.vy *= 0.96;
+        target.vy = Math.max(-4.4, Math.min(3.2, target.vy));
       } else {
-        player.vy += GRAVITY;
-        if (player.vy > 12) player.vy = 12;
+        target.vy += GRAVITY;
+        if (target.vy > 12) target.vy = 12;
       }
 
-      player.x += player.vx;
-      if (rectIntersectsSolid(player.x, player.y, player.w, player.h)) {
-        if (player.vx > 0) player.x = Math.floor((player.x + player.w - 1) / TILE) * TILE - player.w;
-        else if (player.vx < 0) player.x = Math.floor(player.x / TILE + 1) * TILE;
+      target.x += target.vx;
+      if (rectIntersectsSolid(target.x, target.y, target.w, target.h)) {
+        if (target.vx > 0) target.x = Math.floor((target.x + target.w - 1) / TILE) * TILE - target.w;
+        else if (target.vx < 0) target.x = Math.floor(target.x / TILE + 1) * TILE;
       }
 
-      player.y += player.vy;
-      player.onGround = false;
-      if (rectIntersectsSolid(player.x, player.y, player.w, player.h)) {
-        if (player.vy > 0) {
-          player.y = Math.floor((player.y + player.h - 1) / TILE) * TILE - player.h;
-          player.vy = 0;
-          player.onGround = !player.inWater;
-        } else if (player.vy < 0) {
-          player.y = Math.floor(player.y / TILE + 1) * TILE;
-          player.vy = 0;
+      target.y += target.vy;
+      target.onGround = false;
+      if (rectIntersectsSolid(target.x, target.y, target.w, target.h)) {
+        if (target.vy > 0) {
+          target.y = Math.floor((target.y + target.h - 1) / TILE) * TILE - target.h;
+          target.vy = 0;
+          target.onGround = !target.inWater;
+        } else if (target.vy < 0) {
+          target.y = Math.floor(target.y / TILE + 1) * TILE;
+          target.vy = 0;
         }
       }
 
-      if (player.y > WORLD_ROWS * TILE + 300) resetPlayer(true);
+      if (target.y > WORLD_ROWS * TILE + 300) {
+        if (target.isPrimary) resetSandboxPlayer(target, true, 5 * TILE, 8 * TILE);
+        else resetSandboxPlayer(target, true, 7 * TILE, 8 * TILE);
+      }
     }
 
     function updateDogs() {
@@ -1513,7 +2080,6 @@ Gracias por jugar.
           dog.vy += 0.32;
           if (dog.vy > 9) dog.vy = 9;
           dog.vx = dog.dir * dog.speed;
-
           const aheadX = dog.dir > 0 ? dog.x + dog.w + 2 : dog.x - 2;
           const footY = dog.y + dog.h + 2;
           const wallTileX = Math.floor(aheadX / TILE);
@@ -1522,40 +2088,37 @@ Gracias por jugar.
           const hasWall = isSolidAt(wallTileX, midTileY);
           const hasGroundAhead = isSolidAt(wallTileX, groundTileY);
           if (hasWall || !hasGroundAhead) dog.dir *= -1;
-
           if (dog.kind === 'rabbit' && dog.onGround && frameCount % 55 === 0) dog.vy = -4.2;
-
           dog.x += dog.dir * dog.speed;
           if (rectIntersectsSolid(dog.x, dog.y, dog.w, dog.h)) dog.dir *= -1;
-
           dog.y += dog.vy;
           dog.onGround = false;
-          if (rectIntersectsSolid(dog.x, dog.y, dog.w, dog.h)) {
-            if (dog.vy > 0) {
-              dog.y = Math.floor((dog.y + dog.h - 1) / TILE) * TILE - dog.h;
-              dog.vy = 0;
-              dog.onGround = true;
-            }
+          if (rectIntersectsSolid(dog.x, dog.y, dog.w, dog.h) && dog.vy > 0) {
+            dog.y = Math.floor((dog.y + dog.h - 1) / TILE) * TILE - dog.h;
+            dog.vy = 0;
+            dog.onGround = true;
           }
         }
 
-        if (dog.kind === 'lion' && overlapRect(dog, player) && frameCount % 18 === 0) damagePlayer(3, 'lion');
-        if (player.x < dog.x + 90 && player.x + player.w > dog.x - 90 && frameCount % 180 === 0) dog.barkTimer = 60;
+        const possibleTargets = [player, secondPlayer].filter(Boolean);
+        for (const target of possibleTargets) {
+          if (dog.kind === 'lion' && overlapRect(dog, target) && frameCount % 18 === 0) damageSandboxPlayer(target, 3, 'lion');
+          if (target.x < dog.x + 90 && target.x + target.w > dog.x - 90 && frameCount % 180 === 0) dog.barkTimer = 60;
+        }
         if (dog.barkTimer > 0) dog.barkTimer--;
       }
     }
 
     function updateMerchants() {
       for (const m of merchants) {
-        m.greet = Math.abs((m.x + m.w/2) - (player.x + player.w/2)) < 70 && Math.abs((m.y + m.h/2) - (player.y + player.h/2)) < 60 ? 1 : 0;
-
+        const nearestTarget = [player, secondPlayer].filter(Boolean).sort((a, b) => distanceSq(a.x, a.y, m.x, m.y) - distanceSq(b.x, b.y, m.x, m.y))[0] || player;
+        m.greet = Math.abs((m.x + m.w/2) - (nearestTarget.x + nearestTarget.w/2)) < 70 && Math.abs((m.y + m.h/2) - (nearestTarget.y + nearestTarget.h/2)) < 60 ? 1 : 0;
         m.walkTimer--;
         if (m.walkTimer <= 0) {
           m.walkTimer = 70 + Math.floor(Math.random() * 150);
           if (Math.random() < 0.25) m.vx = 0;
           else m.vx = Math.random() < 0.5 ? -0.55 : 0.55;
         }
-
         m.actionTimer--;
         if (m.actionTimer <= 0) {
           m.actionTimer = 100 + Math.floor(Math.random() * 120);
@@ -1566,10 +2129,7 @@ Gracias por jugar.
             if (getBlock(tx, ty) === null && getBlock(tx, ty + 1) !== null) setBlock(tx, ty, 'wood');
           }
         }
-
-        if (m.kind === 'doctor' && m.greet && frameCount % 45 === 0) {
-          player.health = Math.min(MAX_HEALTH, player.health + 1.2);
-        }
+        if (m.kind === 'doctor' && m.greet && frameCount % 45 === 0) nearestTarget.health = Math.min(MAX_HEALTH, nearestTarget.health + 1.2);
         if (m.kind === 'guard') {
           for (const a of dogs) {
             if (a.kind === 'lion' && distanceSq(a.x, a.y, m.x, m.y) < (TILE * 3) ** 2) {
@@ -1578,10 +2138,8 @@ Gracias por jugar.
             }
           }
         }
-
         m.vy += 0.32;
         if (m.vy > 8) m.vy = 8;
-
         const dir = Math.sign(m.vx) || 1;
         const aheadX = dir > 0 ? m.x + m.w + 2 : m.x - 2;
         const wallTileX = Math.floor(aheadX / TILE);
@@ -1590,13 +2148,11 @@ Gracias por jugar.
         const hasWall = isSolidAt(wallTileX, midTileY);
         const hasGroundAhead = isSolidAt(wallTileX, footTileY);
         if (m.vx !== 0 && (hasWall || !hasGroundAhead)) m.vx *= -1;
-
         m.x += m.vx;
         if (rectIntersectsSolid(m.x, m.y, m.w, m.h)) {
           m.x -= m.vx;
           m.vx *= -1;
         }
-
         m.y += m.vy;
         m.onGround = false;
         if (rectIntersectsSolid(m.x, m.y, m.w, m.h)) {
@@ -1613,21 +2169,22 @@ Gracias por jugar.
     }
 
     function updatePickups() {
+      const targets = [player, secondPlayer].filter(Boolean);
       for (let i = pickups.length - 1; i >= 0; i--) {
         const p = pickups[i];
         p.bob += 0.08;
-        if (overlapRect(p, player)) {
-          if (p.type === 'lighter') player.inventory.hasLighter = true;
-          else if (p.type === 'medkit') player.health = Math.min(MAX_HEALTH, player.health + 35);
-          else if (p.type === 'armor') player.inventory.armorTimer = 1800;
-          else if (p.type === 'boots') player.inventory.bootsTimer = 1800;
-          else if (p.type === 'oxygen') {
-            player.inventory.oxygenTimer = 1800;
-            player.bubbles = getMaxBubbles();
-          }
-          pickups.splice(i, 1);
-          Sound.pickup();
+        const collector = targets.find(t => overlapRect(p, t));
+        if (!collector) continue;
+        if (p.type === 'lighter') collector.inventory.hasLighter = true;
+        else if (p.type === 'medkit') collector.health = Math.min(MAX_HEALTH, collector.health + 35);
+        else if (p.type === 'armor') collector.inventory.armorTimer = 1800;
+        else if (p.type === 'boots') collector.inventory.bootsTimer = 1800;
+        else if (p.type === 'oxygen') {
+          collector.inventory.oxygenTimer = 1800;
+          collector.bubbles = getMaxBubbles(collector);
         }
+        pickups.splice(i, 1);
+        Sound.pickup();
       }
     }
 
@@ -1636,7 +2193,8 @@ Gracias por jugar.
         const f = fires[i];
         f.timer--;
         const rect = { x: f.x + 4, y: f.y + 4, w: TILE - 8, h: TILE - 8 };
-        if (overlapRect(rect, player) && frameCount % 12 === 0) damagePlayer(2, 'fire');
+        if (overlapRect(rect, player) && frameCount % 12 === 0) damageSandboxPlayer(player, 2, 'fire');
+        if (secondPlayer && overlapRect(rect, secondPlayer) && frameCount % 12 === 0) damageSandboxPlayer(secondPlayer, 2, 'fire');
         for (const tnt of tnts) {
           if (!tnt.armed && overlapRect(rect, tnt)) {
             tnt.armed = true;
@@ -1645,9 +2203,7 @@ Gracias por jugar.
           }
         }
         const block = getBlock(f.tileX, f.tileY);
-        if (block === 'wood' || block === 'log' || block === 'leaf') {
-          if (frameCount % 30 === 0) setBlock(f.tileX, f.tileY, 'lava_still');
-        }
+        if (block === 'wood' || block === 'log' || block === 'leaf') if (frameCount % 30 === 0) setBlock(f.tileX, f.tileY, 'lava_still');
         if (f.timer <= 0) fires.splice(i, 1);
       }
     }
@@ -1667,7 +2223,7 @@ Gracias por jugar.
 
         if (t.mine) {
           const armedRect = { x: t.x, y: t.y, w: t.w, h: t.h };
-          const touched = overlapRect(armedRect, player) || dogs.some(a => overlapRect(armedRect, a)) || merchants.some(n => overlapRect(armedRect, n));
+          const touched = overlapRect(armedRect, player) || (secondPlayer && overlapRect(armedRect, secondPlayer)) || dogs.some(a => overlapRect(armedRect, a)) || merchants.some(n => overlapRect(armedRect, n));
           if (touched) {
             applyExplosion(t.x + t.w/2, t.y + t.h/2, t.radius);
             tnts.splice(i, 1);
@@ -1694,6 +2250,7 @@ Gracias por jugar.
         if (frameCount % 16 === 0) Sound.tornado();
 
         const affectObj = (obj) => {
+          if (!obj) return;
           const ox = obj.x + obj.w/2;
           const oy = obj.y + obj.h/2;
           const dx = t.x - ox;
@@ -1707,6 +2264,7 @@ Gracias por jugar.
         };
 
         affectObj(player);
+        if (secondPlayer) affectObj(secondPlayer);
         dogs.forEach(affectObj);
         merchants.forEach(affectObj);
         tnts.forEach(affectObj);
@@ -1718,9 +2276,7 @@ Gracias por jugar.
           for (let ty = tileCY - rad; ty <= tileCY + rad; ty++) {
             for (let tx = tileCX - rad; tx <= tileCX + rad; tx++) {
               const block = getBlock(tx, ty);
-              if (!block || block === 'BOUNDARY') continue;
-              if (block === 'obsidian') continue;
-              if (isWaterId(block) || isLavaId(block)) continue;
+              if (!block || block === 'BOUNDARY' || block === 'obsidian' || isWaterId(block) || isLavaId(block)) continue;
               const dx = tx * TILE + TILE/2 - t.x;
               const dy = ty * TILE + TILE/2 - t.y;
               const dist = Math.hypot(dx, dy);
@@ -1732,7 +2288,6 @@ Gracias por jugar.
             }
           }
         }
-
         if (t.timer <= 0) tornadoes.splice(i, 1);
       }
     }
@@ -1765,11 +2320,14 @@ Gracias por jugar.
         r.timer--;
         if (frameCount % 15 === 0) Sound.rain();
         if (frameCount % 10 === 0 && fires.length > 0) fires.shift();
-        if (player.isBurning && frameCount % 20 === 0) {
-          player.burnTimer -= 15;
-          if (player.burnTimer <= 0) {
-            player.isBurning = false;
-            player.burnTimer = 0;
+        const targets = [player, secondPlayer].filter(Boolean);
+        for (const target of targets) {
+          if (target.isBurning && frameCount % 20 === 0) {
+            target.burnTimer -= 15;
+            if (target.burnTimer <= 0) {
+              target.isBurning = false;
+              target.burnTimer = 0;
+            }
           }
         }
         if (r.timer <= 0) rains.splice(i, 1);
@@ -1856,7 +2414,6 @@ Gracias por jugar.
     function drawBlock(tileX, tileY, mat) {
       const x = tileX * TILE - cameraX;
       const y = tileY * TILE - cameraY;
-
       if (isWaterId(mat.id)) {
         ctx.fillStyle = mat.id === 'water' ? 'rgba(47,143,255,0.78)' : 'rgba(47,143,255,0.66)';
         ctx.fillRect(x, y + 2, TILE, TILE - 2);
@@ -1868,7 +2425,6 @@ Gracias por jugar.
         ctx.strokeRect(x + 0.5, y + 0.5, TILE - 1, TILE - 1);
         return;
       }
-
       if (isLavaId(mat.id)) {
         ctx.fillStyle = mat.id === 'lava' ? '#ff6b2e' : '#f75a21';
         ctx.fillRect(x, y + 2, TILE, TILE - 2);
@@ -1882,7 +2438,6 @@ Gracias por jugar.
         ctx.strokeRect(x + 0.5, y + 0.5, TILE - 1, TILE - 1);
         return;
       }
-
       if (mat.id === 'log') {
         ctx.fillStyle = '#7a4d27';
         ctx.fillRect(x, y, TILE, TILE);
@@ -1895,7 +2450,6 @@ Gracias por jugar.
         ctx.strokeRect(x + 0.5, y + 0.5, TILE - 1, TILE - 1);
         return;
       }
-
       ctx.fillStyle = mat.color;
       ctx.fillRect(x, y, TILE, TILE);
       ctx.fillStyle = mat.top || mat.color;
@@ -1920,26 +2474,37 @@ Gracias por jugar.
       }
     }
 
-    function drawPlayer() {
-      const x = player.x - cameraX;
-      const y = player.y - cameraY;
+    function drawPlayerName(target) {
+      const x = target.x - cameraX + target.w / 2;
+      const y = target.y - cameraY - 12;
+      const label = target.name || (target.isPrimary ? 'Jugador 1' : 'Jugador 2');
+      ctx.font = 'bold 13px Arial';
+      const tw = ctx.measureText(label).width;
+      ctx.fillStyle = 'rgba(0,0,0,0.45)';
+      roundRectFill(x - tw / 2 - 8, y - 14, tw + 16, 20, 8);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText(label, x - tw / 2, y);
+    }
 
-      if (player.isBurning) {
+    function drawSandboxPlayer(target) {
+      if (!target) return;
+      const x = target.x - cameraX;
+      const y = target.y - cameraY;
+      if (target.isBurning) {
         ctx.fillStyle = 'rgba(255,120,20,0.35)';
-        ctx.fillRect(x - 5, y - 4, player.w + 10, player.h + 8);
+        ctx.fillRect(x - 5, y - 4, target.w + 10, target.h + 8);
       }
-      if (player.inWater) {
+      if (target.inWater) {
         ctx.fillStyle = 'rgba(72,170,255,0.16)';
-        ctx.fillRect(x - 4, y - 3, player.w + 8, player.h + 6);
+        ctx.fillRect(x - 4, y - 3, target.w + 8, target.h + 6);
       }
-      if (player.hurtFlash > 0) {
+      if (target.hurtFlash > 0) {
         ctx.fillStyle = 'rgba(255,90,90,0.25)';
-        ctx.fillRect(x - 4, y - 4, player.w + 8, player.h + 8);
+        ctx.fillRect(x - 4, y - 4, target.w + 8, target.h + 8);
       }
-
-      ctx.fillStyle = '#2a2a34';
+      ctx.fillStyle = target.shirtColor;
       ctx.fillRect(x + 5, y + 4, 12, 10);
-      ctx.fillStyle = player.hurtFlash > 0 ? '#ff7d8d' : player.color;
+      ctx.fillStyle = target.hurtFlash > 0 ? '#ff7d8d' : target.color;
       ctx.fillRect(x + 3, y + 14, 16, 14);
       ctx.fillStyle = '#ffe0bd';
       ctx.fillRect(x + 5, y, 12, 12);
@@ -1948,9 +2513,8 @@ Gracias por jugar.
       ctx.fillRect(x + 13, y + 4, 2, 2);
       ctx.fillStyle = '#ffffff22';
       ctx.fillRect(x + 4, y + 15, 4, 10);
-
-      if (player.inWater) {
-        for (let i = 0; i < player.bubbles; i++) {
+      if (target.inWater) {
+        for (let i = 0; i < target.bubbles; i++) {
           const bx = x - 6 + i * 10;
           const by = y - 12;
           ctx.fillStyle = 'rgba(180,235,255,0.9)';
@@ -1961,6 +2525,7 @@ Gracias por jugar.
           ctx.fillRect(bx - 1, by - 2, 1, 1);
         }
       }
+      drawPlayerName(target);
     }
 
     function drawDogs() {
@@ -2025,7 +2590,6 @@ Gracias por jugar.
       for (const t of tornadoes) {
         const x = t.x - cameraX;
         const y = t.y - cameraY;
-
         for (let i = 0; i < 12; i++) {
           const progress = i / 11;
           const width = 18 + progress * 46;
@@ -2037,7 +2601,6 @@ Gracias por jugar.
           ctx.ellipse(x + wobble, py, width, 7 + progress * 4, 0, 0, Math.PI * 2);
           ctx.stroke();
         }
-
         ctx.fillStyle = 'rgba(220,240,255,0.08)';
         ctx.beginPath();
         ctx.ellipse(x, y - 70, 32, 120, 0, 0, Math.PI * 2);
@@ -2152,6 +2715,7 @@ Gracias por jugar.
     }
 
     function drawMouseHighlight() {
+      if (currentMode !== 'sandbox') return;
       if (!mouse.inside || !gameStarted) return;
       if (mouse.tileX < 0 || mouse.tileX >= WORLD_COLS || mouse.tileY < 0 || mouse.tileY >= WORLD_ROWS) return;
       const x = mouse.tileX * TILE - cameraX;
@@ -2164,10 +2728,11 @@ Gracias por jugar.
     }
 
     function updateHealthUI() {
+      if (currentMode !== 'sandbox') return;
       healthText.textContent = `Vida: ${Math.ceil(player.health)} / ${MAX_HEALTH}`;
       healthBarInner.style.width = `${Math.max(0, (player.health / MAX_HEALTH) * 100)}%`;
       if (player.isBurning) healthBurn.textContent = 'Quemándose...';
-      else if (player.headUnderWater) healthBurn.textContent = player.bubbles > 0 ? `Oxígeno: ${player.bubbles}/${getMaxBubbles()}` : '¡Te estás ahogando!';
+      else if (player.headUnderWater) healthBurn.textContent = player.bubbles > 0 ? `Oxígeno: ${player.bubbles}/${getMaxBubbles(player)}` : '¡Te estás ahogando!';
       else if (player.inWater) healthBurn.textContent = 'Dentro del agua';
       else if (player.inventory.armorTimer > 0) healthBurn.textContent = 'Armadura activa';
       else if (player.inventory.bootsTimer > 0) healthBurn.textContent = 'Botas activas';
@@ -2176,31 +2741,324 @@ Gracias por jugar.
     }
 
     function updateHUD() {
+      if (currentMode !== 'sandbox') return;
       const selected = getSelectedTool();
-      const selectedName = state.activeCategory === 'blocks'
-        ? materialById[selected]?.name
-        : toolsByCategory[state.activeCategory].find(t => t.id === selected)?.name;
+      const selectedName = state.activeCategory === 'blocks' ? materialById[selected]?.name : toolsByCategory[state.activeCategory].find(t => t.id === selected)?.name;
       const inv = [
         player.inventory.hasLighter ? 'Mechero' : null,
         player.inventory.armorTimer > 0 ? 'Armadura' : null,
         player.inventory.bootsTimer > 0 ? 'Botas' : null,
         player.inventory.oxygenTimer > 0 ? 'O2' : null,
       ].filter(Boolean).join(', ') || 'Vacío';
+      const p2Line = secondPlayer ? `<br>Jugador 2: <b>${secondPlayer.name || 'Sin nombre'}</b> (${Math.floor(secondPlayer.x / TILE)}, ${Math.floor(secondPlayer.y / TILE)})` : '<br>Jugador 2: <b>No activo</b>';
       hud.innerHTML = `
         Sección: <b>${categories.find(c => c.id === state.activeCategory).label}</b><br>
         Selección: <b>${selectedName || 'Nada'}</b><br>
         Modo: <b>${state.editMode === 'place' ? 'Poner' : 'Borrar'}</b><br>
         Bloque apuntado: <b>${mouse.tileX}, ${mouse.tileY}</b><br>
-        Posición jugador: <b>${Math.floor(player.x / TILE)}, ${Math.floor(player.y / TILE)}</b><br>
-        Inventario: <b>${inv}</b>
+        Jugador 1: <b>${player.name || 'Sin nombre'}</b> (${Math.floor(player.x / TILE)}, ${Math.floor(player.y / TILE)})${p2Line}<br>
+        Inventario J1: <b>${inv}</b>
       `;
     }
 
+    function buildTabsUI() {
+      categoryTabs.innerHTML = '';
+      for (const cat of categories) {
+        const btn = document.createElement('button');
+        btn.className = 'tabBtn' + (state.activeCategory === cat.id ? ' active' : '');
+        btn.textContent = cat.label;
+        btn.addEventListener('click', () => {
+          Sound.click();
+          state.activeCategory = cat.id;
+          buildTabsUI();
+          buildMaterialUI();
+        });
+        categoryTabs.appendChild(btn);
+      }
+    }
+
+    function buildMaterialUI() {
+      materialGrid.innerHTML = '';
+      const list = toolsByCategory[state.activeCategory];
+      list.forEach((item, index) => {
+        const btn = document.createElement('button');
+        btn.className = 'materialBtn' + (state.selected[state.activeCategory] === item.id ? ' selected' : '');
+        let swatch = '';
+        let desc = '';
+        if (state.activeCategory === 'blocks') {
+          const mat = materialById[item.id];
+          const bg = item.id === 'water'
+            ? 'linear-gradient(#84caff 0 25%, #2f8fff 25% 100%)'
+            : item.id === 'lava'
+              ? 'linear-gradient(#ffd25f 0 25%, #ff642e 25% 100%)'
+              : `linear-gradient(${mat.top || mat.color} 0 25%, ${mat.color} 25% 100%)`;
+          swatch = `<div class="swatch" style="background:${bg};"></div>`;
+          desc = item.id === 'water' ? 'Bloque líquido' : item.id === 'lava' ? 'Líquido dañino' : 'Bloque sólido';
+        } else {
+          swatch = `<div class="swatch" style="background:#2c3550;">${item.icon || '•'}</div>`;
+          desc = item.desc || 'Ejemplo funcional';
+        }
+        btn.innerHTML = `${swatch}<div><div style="font-weight:700">${index + 1}. ${item.name}</div><div style="font-size:12px;color:#aab3c7">${desc}</div></div>`;
+        btn.addEventListener('click', () => {
+          Sound.click();
+          state.selected[state.activeCategory] = item.id;
+          buildMaterialUI();
+        });
+        materialGrid.appendChild(btn);
+      });
+    }
+
+    buildTabsUI();
+    buildMaterialUI();
+
+    function updateFluids() {
+      const next = world.map(row => row.slice());
+      const toActivate = [];
+      const canOccupy = (x, y) => {
+        if (x < 0 || x >= WORLD_COLS || y < 0 || y >= WORLD_ROWS) return false;
+        return world[y][x] === null;
+      };
+      for (let y = WORLD_ROWS - 2; y >= 0; y--) {
+        for (let x = 0; x < WORLD_COLS; x++) {
+          const block = world[y][x];
+          if (!block || (!isWaterId(block) && !isLavaId(block))) continue;
+          const activeId = baseLiquidId(block);
+          const stillId = stillLiquidId(block);
+          const below = getBlock(x, y + 1);
+          const left = getBlock(x - 1, y);
+          const right = getBlock(x + 1, y);
+          const belowEmpty = canOccupy(x, y + 1);
+          const leftSupported = getBlock(x - 1, y + 1) !== null && getBlock(x - 1, y + 1) !== 'BOUNDARY';
+          const rightSupported = getBlock(x + 1, y + 1) !== null && getBlock(x + 1, y + 1) !== 'BOUNDARY';
+          const leftEmpty = canOccupy(x - 1, y) && leftSupported;
+          const rightEmpty = canOccupy(x + 1, y) && rightSupported;
+          if (belowEmpty) {
+            next[y][x] = stillId;
+            next[y + 1][x] = activeId;
+            continue;
+          }
+          if (leftEmpty || rightEmpty) {
+            next[y][x] = stillId;
+            const goLeft = ((x + y + frameCount) % 2 === 0);
+            if (goLeft && leftEmpty) next[y][x - 1] = activeId;
+            else if (!goLeft && rightEmpty) next[y][x + 1] = activeId;
+            else if (leftEmpty) next[y][x - 1] = activeId;
+            else if (rightEmpty) next[y][x + 1] = activeId;
+            continue;
+          }
+          next[y][x] = stillId;
+          if ((block === 'water_still' || block === 'lava_still') && (below === null || (left === null && leftSupported) || (right === null && rightSupported))) {
+            toActivate.push([x, y, activeId]);
+          }
+        }
+      }
+      for (const [x, y, activeId] of toActivate) next[y][x] = activeId;
+      for (let y = 0; y < WORLD_ROWS; y++) for (let x = 0; x < WORLD_COLS; x++) world[y][x] = next[y][x];
+    }
+
+    playBtn.addEventListener('click', () => {
+      Sound.ensure();
+      Sound.playStart();
+      creditsOverlay.style.display = 'none';
+      showModeMenu();
+    });
+
+    sandboxModeBtn.addEventListener('click', () => {
+      Sound.ensure();
+      Sound.playStart();
+      openSandboxNamePrompt();
+    });
+
+    minigamesModeBtn.addEventListener('click', () => {
+      Sound.ensure();
+      Sound.click();
+      showMinigamesMenu();
+    });
+
+    backToStartBtn.addEventListener('click', () => {
+      Sound.click();
+      showStartMenu();
+    });
+
+    footballBtn.addEventListener('click', () => {
+      Sound.ensure();
+      Sound.playStart();
+      startFootballMode();
+    });
+
+    backToModesBtn.addEventListener('click', () => {
+      Sound.click();
+      showModeMenu();
+    });
+
+    creditsBtn.addEventListener('click', () => {
+      Sound.ensure();
+      Sound.click();
+      creditsOverlay.style.display = 'flex';
+    });
+
+    closeCredits.addEventListener('click', () => {
+      Sound.click();
+      creditsOverlay.style.display = 'none';
+    });
+
+    creditsOverlay.addEventListener('click', (e) => {
+      if (e.target === creditsOverlay) {
+        Sound.click();
+        creditsOverlay.style.display = 'none';
+      }
+    });
+
+    sandboxNameInput.addEventListener('input', () => {
+      sandboxNameConfirmBtn.disabled = normalizeName(sandboxNameInput.value).length === 0;
+    });
+
+    sandboxNameInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !sandboxNameConfirmBtn.disabled) sandboxNameConfirmBtn.click();
+    });
+
+    sandboxNameConfirmBtn.addEventListener('click', () => {
+  const name = normalizeName(sandboxNameInput.value);
+  if (!name) return;
+
+  player.name = name;
+  guardarNombreEnGoogleForms(name);
+  startSandboxMode();
+});
+
+    secondPlayerNameInput.addEventListener('input', () => {
+      secondPlayerNameConfirmBtn.disabled = normalizeName(secondPlayerNameInput.value).length === 0;
+    });
+
+    secondPlayerNameInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !secondPlayerNameConfirmBtn.disabled) secondPlayerNameConfirmBtn.click();
+    });
+
+    secondPlayerNameConfirmBtn.addEventListener('click', () => {
+  const name = normalizeName(secondPlayerNameInput.value);
+  if (!name) return;
+
+  guardarNombreEnGoogleForms(name);
+  addSecondPlayer(name);
+  closeSecondPlayerPrompt();
+});
+
+    closeSecondPlayerNameBtn.addEventListener('click', () => {
+      Sound.click();
+      closeSecondPlayerPrompt();
+    });
+
+    secondPlayerNameScreen.addEventListener('click', (e) => {
+      if (e.target === secondPlayerNameScreen) closeSecondPlayerPrompt();
+    });
+
+    addPlayerBtn.addEventListener('click', () => {
+      Sound.ensure();
+      Sound.click();
+      if (secondPlayer) {
+        removeSecondPlayer();
+        canvas.focus();
+      } else {
+        openSecondPlayerPrompt();
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      const k = e.key.toLowerCase();
+      keys[k] = true;
+
+      if (k === 'm' && currentMode === 'sandbox' && !secondPlayer && !secondPlayerNameScreen.classList.contains('show')) {
+        e.preventDefault();
+        Sound.ensure();
+        Sound.click();
+        openSecondPlayerPrompt();
+        return;
+      }
+
+      if (e.code === 'Space') keys[' '] = true;
+
+      if (currentMode === 'sandbox') {
+        if (k === 'w') {
+          e.preventDefault();
+          if (!player.jumpPressed) {
+            handleJump(player);
+            player.jumpPressed = true;
+          }
+        }
+        if (e.key === 'ArrowUp' && secondPlayer && !secondPlayer.jumpPressed) {
+          e.preventDefault();
+          handleJump(secondPlayer);
+          secondPlayer.jumpPressed = true;
+        }
+        if (k === 'r') resetPlayer(true);
+        if (k === 'f') tryUseLighter(player);
+        if (k === 'e') armNearestTNT(player);
+        if (k === 'shift') e.preventDefault();
+      } else if (currentMode !== 'football' && k === 'shift') {
+        e.preventDefault();
+      }
+    });
+
+    document.addEventListener('keyup', (e) => {
+      const k = e.key.toLowerCase();
+      keys[k] = false;
+      if (e.code === 'Space') keys[' '] = false;
+      if (k === 'w') player.jumpPressed = false;
+      if (e.key === 'ArrowUp' && secondPlayer) secondPlayer.jumpPressed = false;
+    });
+
+    canvas.addEventListener('mousemove', (e) => {
+      updateMouseTileFromEvent(e);
+      if (currentMode !== 'sandbox') return;
+      if (mouse.leftDown) {
+        if (state.editMode === 'place') placeAtMouse();
+        else eraseAtMouse();
+      }
+      if (mouse.rightDown) eraseAtMouse();
+    });
+
+    canvas.addEventListener('mouseleave', () => { mouse.inside = false; });
+    canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+    canvas.addEventListener('dragstart', (e) => e.preventDefault());
+    canvas.addEventListener('mousedown', (e) => {
+      if (currentMode !== 'sandbox') return;
+      Sound.ensure();
+      canvas.focus();
+      updateMouseTileFromEvent(e);
+      if (e.button === 0) {
+        mouse.leftDown = true;
+        if (state.editMode === 'place') placeAtMouse();
+        else eraseAtMouse();
+      } else if (e.button === 2) {
+        mouse.rightDown = true;
+        eraseAtMouse();
+      }
+    });
+
+    window.addEventListener('mouseup', (e) => {
+      if (e.button === 0) mouse.leftDown = false;
+      if (e.button === 2) mouse.rightDown = false;
+    });
+
+    placeModeBtn.addEventListener('click', () => {
+      Sound.click();
+      state.editMode = 'place';
+      placeModeBtn.classList.add('active');
+      eraseModeBtn.classList.remove('active');
+    });
+
+    eraseModeBtn.addEventListener('click', () => {
+      Sound.click();
+      state.editMode = 'erase';
+      eraseModeBtn.classList.add('active');
+      placeModeBtn.classList.remove('active');
+    });
+
     function loop() {
       frameCount++;
-
-      if (gameStarted) {
-        updatePlayer();
+      if (currentMode === 'sandbox') {
+        updateSandboxPlayer(player, { left: !!keys['a'], right: !!keys['d'] });
+        if (secondPlayer) updateSandboxPlayer(secondPlayer, { left: !!keys['arrowleft'], right: !!keys['arrowright'] });
         if (frameCount % FLUID_UPDATE_INTERVAL === 0) updateFluids();
         updateDogs();
         updateMerchants();
@@ -2216,32 +3074,53 @@ Gracias por jugar.
         updateCamera();
         updateHealthUI();
         updateHUD();
+
+        drawSky();
+        drawWorld();
+        drawRain();
+        drawFires();
+        drawTNTs();
+        drawPickups();
+        drawMerchants();
+        drawDogs();
+        drawSandboxPlayer(player);
+        if (secondPlayer) drawSandboxPlayer(secondPlayer);
+        drawTornadoes();
+        drawMeteors();
+        drawLightnings();
+        drawParticles();
+        drawMouseHighlight();
+      } else if (currentMode === 'football') {
+        cameraX = 0;
+        cameraY = 0;
+        cameraShakeX = 0;
+        cameraShakeY = 0;
+        updateFootball();
+        drawFootball();
       } else {
         cameraShakeX = 0;
         cameraShakeY = 0;
         updateCamera();
-        updateHealthUI();
-        updateHUD();
+        drawSky();
+        drawWorld();
+        drawRain();
+        drawFires();
+        drawTNTs();
+        drawPickups();
+        drawMerchants();
+        drawDogs();
+        drawSandboxPlayer(player);
+        drawTornadoes();
+        drawMeteors();
+        drawLightnings();
+        drawParticles();
       }
-
-      drawSky();
-      drawWorld();
-      drawRain();
-      drawFires();
-      drawTNTs();
-      drawPickups();
-      drawMerchants();
-      drawDogs();
-      drawPlayer();
-      drawTornadoes();
-      drawMeteors();
-      drawLightnings();
-      drawParticles();
-      drawMouseHighlight();
-
       requestAnimationFrame(loop);
     }
 
+    showSandboxUI(false);
+    showFootballUI(false);
+    showStartMenu();
     loop();
   </script>
 </body>
